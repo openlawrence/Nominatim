@@ -130,8 +130,9 @@
 
 		$fPostgisVersion = (float) CONST_Postgis_Version;
 		if ($fPostgisVersion < 2.0) {
-			pgsqlRunScriptFile(CONST_Path_Postgresql_Postgis.'/postgis.sql');
-			pgsqlRunScriptFile(CONST_Path_Postgresql_Postgis.'/spatial_ref_sys.sql');
+		  //			pgsqlRunScriptFile(CONST_Path_Postgresql_Contrib.'/postgis-64.sql');
+		  //pgsqlRunScriptFile(CONST_Path_Postgresql_Contrib.'/spatial_ref_sys.sql');
+		  pgsqlRunScript('CREATE EXTENSION postgis');
 		} else {
 			pgsqlRunScript('CREATE EXTENSION postgis');
 		}
@@ -753,9 +754,10 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'psql -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
+		$sCMD = 'psql -h '.$aDSNInfo['hostspec'] . ' -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
 		if (!$aCMDResult['ignore-errors'])
 			$sCMD .= ' -v ON_ERROR_STOP=1';
+		//print("Exec sql ". $sScript . "\n");
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
 			1 => STDOUT, 
@@ -784,7 +786,7 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'pg_restore -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc -a '.$sDumpFile;
+		$sCMD = 'pg_restore -h '.$aDSNInfo['hostspec'] . '-p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc -a '.$sDumpFile;
 
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
@@ -816,7 +818,7 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'pg_restore -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc --clean '.$sDumpFile;
+		$sCMD = 'pg_restore -h '.$aDSNInfo['hostspec'] . '-p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc --clean '.$sDumpFile;
 
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
