@@ -195,7 +195,7 @@
 		}
 		$osm2pgsql .= ' -lsc -O gazetteer --hstore';
 		$osm2pgsql .= ' -C '.$iCacheMemory;
-		$osm2pgsql .= ' -h '.$aDSNInfo['hostspec'];
+		$osm2pgsql .= ' -H '.$aDSNInfo['hostspec'];
 		$osm2pgsql .= ' -P '.$aDSNInfo['port'];
 		$osm2pgsql .= ' -d '.$aDSNInfo['database'].' '.$aCMDResult['osm-file'];
 		passthruCheckReturn($osm2pgsql);
@@ -327,7 +327,7 @@
 		$sWikiRedirectsFile = CONST_BasePath.'/data/wikipedia_redirect.sql.bin';
 		if (file_exists($sWikiArticlesFile))
 		{
-			echo "Importing wikipedia articles...";
+			echo "Importing wikipedia articles...:" . $sWikiArticlesFile ;
 			pgsqlRunDropAndRestore($sWikiArticlesFile);
 			echo "...done\n";
 		}
@@ -619,7 +619,7 @@
 		$bDidSomething = true;
 		$sOutputFile = '';
 		if (isset($aCMDResult['index-output'])) $sOutputFile = ' -F '.$aCMDResult['index-output'];
-		$sBaseCmd = CONST_BasePath.'/nominatim/nominatim -i -h '.$aDSNInfo['hostspec'] . '  -d '.$aDSNInfo['database'].' -P '.$aDSNInfo['port'].' -t '.$iInstances.$sOutputFile;
+		$sBaseCmd = CONST_BasePath.'/nominatim/nominatim -i -H '.$aDSNInfo['hostspec'] . '  -d '.$aDSNInfo['database'].' -P '.$aDSNInfo['port'].' -t '.$iInstances.$sOutputFile;
 		passthruCheckReturn($sBaseCmd.' -R 4');
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
 		passthruCheckReturn($sBaseCmd.' -r 5 -R 25');
@@ -826,6 +826,7 @@
 			2 => array('file', '/dev/null', 'a')
 		);
 		$ahPipes = null;
+		print($sCMD);
 		$hProcess = proc_open($sCMD, $aDescriptors, $ahPipes);
 		if (!is_resource($hProcess)) fail('unable to start pg_restore');
 
@@ -848,6 +849,7 @@
 	function passthruCheckReturn($cmd)
 	{
 		$result = -1;
+		print "run command:" . $cmd;
 		passthru($cmd, $result);
 		if ($result != 0) fail('Error executing external command: '.$cmd);
 	}
