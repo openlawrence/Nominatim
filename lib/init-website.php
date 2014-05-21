@@ -10,7 +10,7 @@
 			header("Access-Control-Allow-Headers: ".$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
 		}
 	}
-	if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') exit;
+#	if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') exit;
 
 	if (CONST_ClosedForIndexing && strpos(CONST_ClosedForIndexingExceptionIPs, ','.$_SERVER["REMOTE_ADDR"].',') === false)
  	{
@@ -52,13 +52,13 @@
 		$m->decrement('sleepCounter');
 	}
 
-	if (strpos(CONST_BlockedIPs, ','.$_SERVER["REMOTE_ADDR"].',') !== false || $fBucketVal >= CONST_ConnectionBucket_BlockLimit)
-	{
-		header("HTTP/1.0 429 Too Many Requests");
-		echo "Your IP has been blocked. \n";
-		echo CONST_BlockMessage;
-		exit;
-	}
+#	if (strpos(CONST_BlockedIPs, ','.$_SERVER["REMOTE_ADDR"].',') !== false || $fBucketVal >= CONST_ConnectionBucket_BlockLimit)
+#	{
+	/* 	header("HTTP/1.0 429 Too Many Requests"); */
+	/* 	echo "Your IP has been blocked. \n"; */
+	/* 	echo CONST_BlockMessage; */
+	/* 	exit; */
+	/* } */
 
 	header('Content-type: text/html; charset=utf-8');
 
