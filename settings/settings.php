@@ -4,7 +4,7 @@
 
 	// General settings
 	@define('CONST_Debug', true);
-	@define('CONST_Database_DSN', 'pgsql://@db.openlawrence.com/nominatim'); // <driver>://<username>:<password>@<host>:<port>/<database>
+	@define('CONST_Database_DSN', 'pgsql:///nominatim'); // <driver>://<username>:<password>@<host>:<port>/<database>
 	@define('CONST_Max_Word_Frequency', '50000');
 	@define('CONST_Limit_Reindexing', true);
 

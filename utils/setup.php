@@ -96,11 +96,14 @@
 		$oDB =& DB::connect(CONST_Database_DSN, false);
 		if (!PEAR::isError($oDB))
 		{
-			fail('database already exists ('.CONST_Database_DSN.')');
+#			fail('database already exists ('.CONST_Database_DSN.')');
+            $oDB->disconnect();
+            passthruCheckReturn('dropdb '.$aDSNInfo['database']);
 		}
 		echo 'database check ('.CONST_Database_DSN.')';
 		print_r($aDSNInfo);
-		passthruCheckReturn('createdb -E UTF-8 -h '.$aDSNInfo['hostspec'].' -p '.$aDSNInfo['port'].' '.$aDSNInfo['database']);
+#		passthruCheckReturn('createdb -E UTF-8 -h '.$aDSNInfo['hostspec'].' -p '.$aDSNInfo['port'].' '.$aDSNInfo['database']);
+		passthruCheckReturn('createdb  -E UTF-8 -T template0  --locale=en_US.utf8 '.$aDSNInfo['database']);
 	}
 
 	if ($aCMDResult['setup-db'] || $aCMDResult['all'])
@@ -119,7 +122,7 @@
 			exit;
 		}
 
-		passthru('createlang plpgsql -h '.$aDSNInfo['hostspec'].' -p '.$aDSNInfo['port'].' '.$aDSNInfo['database']);
+		passthru('createlang plpgsql  -p '.$aDSNInfo['port'].' '.$aDSNInfo['database']);
 		$pgver = (float) CONST_Postgresql_Version;
 		if ($pgver < 9.1) {
 			pgsqlRunScriptFile(CONST_Path_Postgresql_Contrib.'/hstore.sql');
@@ -195,7 +198,6 @@
 		}
 		$osm2pgsql .= ' -lsc -O gazetteer --hstore';
 		$osm2pgsql .= ' -C '.$iCacheMemory;
-		$osm2pgsql .= ' -H '.$aDSNInfo['hostspec'];
 		$osm2pgsql .= ' -P '.$aDSNInfo['port'];
 		$osm2pgsql .= ' -d '.$aDSNInfo['database'].' '.$aCMDResult['osm-file'];
 		passthruCheckReturn($osm2pgsql);
@@ -619,7 +621,7 @@
 		$bDidSomething = true;
 		$sOutputFile = '';
 		if (isset($aCMDResult['index-output'])) $sOutputFile = ' -F '.$aCMDResult['index-output'];
-		$sBaseCmd = CONST_BasePath.'/nominatim/nominatim -i -H '.$aDSNInfo['hostspec'] . '  -d '.$aDSNInfo['database'].' -P '.$aDSNInfo['port'].' -t '.$iInstances.$sOutputFile;
+		$sBaseCmd = CONST_BasePath.'/nominatim/nominatim -i -d '.$aDSNInfo['database'].' -P '.$aDSNInfo['port'].' -t '.$iInstances.$sOutputFile;
 		passthruCheckReturn($sBaseCmd.' -R 4');
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
 		passthruCheckReturn($sBaseCmd.' -r 5 -R 25');
@@ -697,7 +699,9 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'psql -h '.$aDSNInfo['hostspec'] . ' -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
+		$sCMD = 'psql -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
+
+		print("Exec sql ". $sCMD . "\n");
 
 		$ahGzipPipes = null;
 		if (preg_match('/\\.gz$/', $sFilename))
@@ -754,10 +758,10 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'psql -h '.$aDSNInfo['hostspec'] . ' -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
+		$sCMD = 'psql -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
 		if (!$aCMDResult['ignore-errors'])
 			$sCMD .= ' -v ON_ERROR_STOP=1';
-		//print("Exec sql ". $sScript . "\n");
+		print("Exec sql ". $sScript . "\n");
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
 			1 => STDOUT, 
@@ -786,7 +790,7 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'pg_restore -h '.$aDSNInfo['hostspec'] . '-p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc -a '.$sDumpFile;
+		$sCMD = 'pg_restore -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc -a '.$sDumpFile;
 
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
@@ -818,7 +822,7 @@
 		// Convert database DSN to psql parameters
 		$aDSNInfo = DB::parseDSN(CONST_Database_DSN);
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
-		$sCMD = 'pg_restore -h '.$aDSNInfo['hostspec'] . '-p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc --clean '.$sDumpFile;
+		$sCMD = 'pg_restore -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'].' -Fc --clean '.$sDumpFile;
 
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),

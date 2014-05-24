@@ -1,33 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version='0.6' upload='true' generator='JOSM'>
-  <node id='-1027612' visible='true' lat='38.9669328' lon='-95.2357339' />
-  <node id='-1027611' visible='true' lat='38.9674298' lon='-95.2353008' />
-  <node id='-1027610' visible='true' lat='38.9674134' lon='-95.235265' />
-  <node id='-1027609' visible='true' lat='38.9669917' lon='-95.2356409'>
+  <bounds minlat='38.9669376' minlon='-95.2357444' maxlat='38.9674194' maxlon='-95.2353126' origin='CGImap 0.3.3 (5747 thorn-02.openstreetmap.org)' />
+  <node id='1421128281' timestamp='2011-09-02T16:53:52Z' uid='8909' user='mvexel' visible='true' version='1' changeset='9194523' lat='38.9673188' lon='-95.235562'>
+    <tag k='amenity' v='bank' />
+    <tag k='atm' v='yes' />
+    <tag k='name' v='US Bank' />
+  </node>
+  <node id='2269003900' timestamp='2014-01-23T13:38:39Z' uid='28378' user='PHerison' visible='true' version='3' changeset='20159969' lat='38.9674139' lon='-95.2357345' />
+  <node id='2269004490' timestamp='2013-04-24T12:00:41Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='15848099' lat='38.9669311' lon='-95.2353211' />
+  <node id='2269004492' timestamp='2013-04-24T12:00:41Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='15848099' lat='38.9669328' lon='-95.2357339' />
+  <node id='2269004504' timestamp='2013-04-24T12:00:41Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='15848099' lat='38.9674133' lon='-95.2353213' />
+  <node id='2865587088' timestamp='2014-05-20T21:04:28Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='22454576' lat='38.9669917' lon='-95.2356409'>
     <tag k='addr:suite' v='403' />
     <tag k='amenity' v='bank' />
     <tag k='atm' v='yes' />
     <tag k='name' v='Ameriprise Financial' />
     <tag k='website' v='http://www.ameripriseadvisors.com/teresa.m.kempf' />
   </node>
-  <node id='-1027608' visible='true' lat='38.9669311' lon='-95.2357339' />
-  <node id='-1027607' visible='true' lat='38.967423' lon='-95.2357768' />
-  <node id='-1027606' visible='true' lat='38.9673188' lon='-95.235562'>
-    <tag k='amenity' v='bank' />
-    <tag k='atm' v='yes' />
-    <tag k='name' v='US Bank' />
-  </node>
-  <node id='-1027605' visible='true' lat='38.9669311' lon='-95.2353211' />
-  <node id='-1027604' visible='true' lat='38.9673888' lon='-95.2358118' />
-  <node id='-1027603' visible='true' lat='38.966946' lon='-95.2352647' />
-  <node id='-1027602' visible='true' lat='38.9674133' lon='-95.2353213' />
-  <node id='-1027601' visible='true' lat='38.9674139' lon='-95.2357345' />
-  <way id='-1027613' visible='true'>
-    <nd ref='-1027612' />
-    <nd ref='-1027601' />
-    <nd ref='-1027602' />
-    <nd ref='-1027605' />
-    <nd ref='-1027612' />
+  <way id='217605482' timestamp='2014-05-21T14:02:36Z' uid='521572' user='James Michael DuPont' visible='true' version='4' changeset='22466241'>
+    <nd ref='2269004492' />
+    <nd ref='2269003900' />
+    <nd ref='2269004504' />
+    <nd ref='2269004490' />
+    <nd ref='2269004492' />
     <tag k='addr:city' v='Lawrence' />
     <tag k='addr:housenumber' v='900' />
     <tag k='addr:postcode' v='66044' />
