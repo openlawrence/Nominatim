@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' upload='true' generator='JOSM'>
+  <node id='-1027612' visible='true' lat='38.9669328' lon='-95.2357339' />
+  <node id='-1027611' visible='true' lat='38.9674298' lon='-95.2353008' />
+  <node id='-1027610' visible='true' lat='38.9674134' lon='-95.235265' />
+  <node id='-1027609' visible='true' lat='38.9669917' lon='-95.2356409'>
+    <tag k='addr:suite' v='403' />
+    <tag k='amenity' v='bank' />
+    <tag k='atm' v='yes' />
+    <tag k='name' v='Ameriprise Financial' />
+    <tag k='website' v='http://www.ameripriseadvisors.com/teresa.m.kempf' />
+  </node>
+  <node id='-1027608' visible='true' lat='38.9669311' lon='-95.2357339' />
+  <node id='-1027607' visible='true' lat='38.967423' lon='-95.2357768' />
+  <node id='-1027606' visible='true' lat='38.9673188' lon='-95.235562'>
+    <tag k='amenity' v='bank' />
+    <tag k='atm' v='yes' />
+    <tag k='name' v='US Bank' />
+  </node>
+  <node id='-1027605' visible='true' lat='38.9669311' lon='-95.2353211' />
+  <node id='-1027604' visible='true' lat='38.9673888' lon='-95.2358118' />
+  <node id='-1027603' visible='true' lat='38.966946' lon='-95.2352647' />
+  <node id='-1027602' visible='true' lat='38.9674133' lon='-95.2353213' />
+  <node id='-1027601' visible='true' lat='38.9674139' lon='-95.2357345' />
+  <way id='-1027613' visible='true'>
+    <nd ref='-1027612' />
+    <nd ref='-1027601' />
+    <nd ref='-1027602' />
+    <nd ref='-1027605' />
+    <nd ref='-1027612' />
+    <tag k='addr:city' v='Lawrence' />
+    <tag k='addr:housenumber' v='900' />
+    <tag k='addr:postcode' v='66044' />
+    <tag k='addr:street' v='Massachusets Street' />
+    <tag k='building' v='residential' />
+  </way>
+</osm>
