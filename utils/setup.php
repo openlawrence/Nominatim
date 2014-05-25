@@ -624,7 +624,7 @@
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
 		passthruCheckReturn($sBaseCmd.' -r 5 -R 25');
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
-		passthruCheckReturn($sBaseCmd.' -r 30'); # use rank 30 for everyhing! it used to be 26
+		passthruCheckReturn($sBaseCmd.' -r 26'); 
 	}
 
 	if ($aCMDResult['create-search-indices'] || $aCMDResult['all'])
