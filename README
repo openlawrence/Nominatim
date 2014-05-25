@@ -47,7 +47,16 @@ Installation steps:
   apt-get install gcc proj-bin libgeos-c1 git osmosis
   apt-get install php5 php-pear php5-pgsql php5-json php-db
   apt-get install postgresql postgis postgresql-contrib postgresql-9.1-postgis postgresql-server-dev-9.1
-` 
+
+Testing
+=======
+
+osm2pgsql -lsc -O gazetteer --hstore -C 3585 -P 5432 -d nominatim /mnt/data/home/mdupont/experiments/lawrence/Nominatim/data/255_michigan.osm
+
+
+nominatim/nominatim --verbose -i -d nominatim -P 5432 -t 7 -r 30
+
+ 
 License
 =======
 

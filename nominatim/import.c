@@ -55,6 +55,7 @@ struct feature
     xmlChar *	parentID;
     xmlChar * 	adminLevel;
     xmlChar *	houseNumber;
+    xmlChar *	suiteNumber;
     xmlChar * 	geometry;
 } feature;
 
@@ -155,6 +156,7 @@ void StartElement(xmlTextReaderPtr reader, const xmlChar *name)
         feature.countryCode = NULL;
         feature.adminLevel = NULL;
         feature.houseNumber = NULL;
+        feature.suiteNumber = NULL;
         feature.geometry = NULL;
         featureAddressLines = 0;
         featureNameLines = 0;
@@ -212,6 +214,11 @@ void StartElement(xmlTextReaderPtr reader, const xmlChar *name)
     if (xmlStrEqual(name, BAD_CAST "houseNumber"))
     {
         feature.houseNumber = xmlTextReaderReadString(reader);
+        return;
+    }
+    if (xmlStrEqual(name, BAD_CAST "suiteNumber"))
+    {
+        feature.suiteNumber = xmlTextReaderReadString(reader);
         return;
     }
     if (xmlStrEqual(name, BAD_CAST "address"))
@@ -493,9 +500,10 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
 
             paramValues[9] = (const char *)feature.adminLevel;
             paramValues[10] = (const char *)feature.houseNumber;
-            paramValues[11] = (const char *)feature.rankAddress;
-            paramValues[12] = (const char *)feature.rankSearch;
-            paramValues[13] = (const char *)feature.geometry;
+            paramValues[11] = (const char *)feature.suiteNumber;
+            paramValues[12] = (const char *)feature.rankAddress;
+            paramValues[13] = (const char *)feature.rankSearch;
+            paramValues[14] = (const char *)feature.geometry;
             if (strlen(paramValues[3]) && strlen(paramValues[13]))
             {
                 if (verbose) fprintf(stderr, "placex_insert: %s\n", paramValues[0]);
@@ -613,6 +621,7 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
 //		if (feature.name) xmlFree(feature.name);
         if (feature.adminLevel) xmlFree(feature.adminLevel);
         if (feature.houseNumber) xmlFree(feature.houseNumber);
+        if (feature.suiteNumber) xmlFree(feature.suiteNumber);
         if (feature.geometry) xmlFree(feature.geometry);
 
 //        PQclear(resPlaceID);
@@ -752,8 +761,8 @@ int nominatim_import(const char *conninfo, const char *partionTagsFilename, cons
     }
 
     res = PQprepare(conn, "placex_insert",
-                    "insert into placex (place_id,osm_type,osm_id,class,type,name,country_code,extratags,parent_place_id,admin_level,housenumber,rank_address,rank_search,geometry) "
-                    "values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, st_setsrid($14, 4326))",
+                    "insert into placex (place_id,osm_type,osm_id,class,type,name,country_code,extratags,parent_place_id,admin_level,housenumber, suitenumber, rank_address,rank_search,geometry) "
+                    "values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, st_setsrid($14, 4326))",
                     12, NULL);
     if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {

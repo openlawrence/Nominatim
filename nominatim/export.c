@@ -152,7 +152,7 @@ void nominatim_exportCreatePreparedQueries(PGconn * conn)
 
     pg_prepare_params[0] = PG_OID_INT8;
     res = PQprepare(conn, "placex_details",
-                    "select placex.osm_type, placex.osm_id, placex.class, placex.type, placex.name, placex.housenumber, placex.country_code, ST_AsText(placex.geometry), placex.admin_level, placex.rank_address, placex.rank_search, placex.parent_place_id, parent.osm_type, parent.osm_id, placex.indexed_status from placex left outer join placex as parent on (placex.parent_place_id = parent.place_id) where placex.place_id = $1",
+                    "select placex.osm_type, placex.osm_id, placex.class, placex.type, placex.name, placex.housenumber, placex.suitenumber, placex.country_code, ST_AsText(placex.geometry), placex.admin_level, placex.rank_address, placex.rank_search, placex.parent_place_id, parent.osm_type, parent.osm_id, placex.indexed_status from placex left outer join placex as parent on (placex.parent_place_id = parent.place_id) where placex.place_id = $1",
                     1, pg_prepare_params);
     if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
@@ -439,6 +439,13 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
         xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 5));
         xmlTextWriterEndElement(writer);
     }
+
+    /*    if (PQgetvalue(querySet.res, 0, 5) && strlen(PQgetvalue(querySet.res, 0, 5)))
+    {
+        xmlTextWriterStartElement(writer, BAD_CAST "suiteNumber");
+        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 5));
+        xmlTextWriterEndElement(writer);
+        }*/
 
     if (PQgetvalue(querySet.res, 0, 8) && strlen(PQgetvalue(querySet.res, 0, 8)))
     {

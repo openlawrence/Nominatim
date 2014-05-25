@@ -405,7 +405,7 @@
 		{
 			$aDBInstances[$i] =& getDB(true);
 			$sSQL = 'insert into placex (osm_type, osm_id, class, type, name, admin_level, ';
-			$sSQL .= 'housenumber, street, addr_place, isin, postcode, country_code, extratags, ';
+			$sSQL .= 'housenumber, suitenumber, street, addr_place, isin, postcode, country_code, extratags, ';
 			$sSQL .= 'geometry) select * from place where osm_id % '.$iInstances.' = '.$i;
 			if ($aCMDResult['verbose']) echo "$sSQL\n";
 			if (!pg_send_query($aDBInstances[$i]->connection, $sSQL)) fail(pg_last_error($oDB->connection));
@@ -626,7 +626,7 @@
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
 		passthruCheckReturn($sBaseCmd.' -r 5 -R 25');
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
-		passthruCheckReturn($sBaseCmd.' -r 30');
+		passthruCheckReturn($sBaseCmd.' -r 24');
 	}
 
 	if ($aCMDResult['create-search-indices'] || $aCMDResult['all'])
