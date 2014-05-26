@@ -31,7 +31,12 @@ $options = getopt("q:p:f:");
 
 	// Format for output
 	$sOutputFormat = 'jsonv2';
-    $format  = $options['f'];
+
+if (array_key_exists ( 'f' , $options ) )
+    {
+        $format  = $options['f'];
+    }
+
     $query = $options['q'];
 	if (isset($format) && ($format == 'html' || $format == 'xml' || $format == 'json' ||  $format == 'jsonv2'))
 	{
@@ -114,7 +119,7 @@ $options = getopt("q:p:f:");
 #	$hLog = logStart($oDB, 'search', $oGeocode->getQueryString(), $aLangPrefOrder);
 
 	$aSearchResults = $oGeocode->lookup();
-var_dump($aSearchResults);
+
 	if ($aSearchResults === false) $aSearchResults = array();
 
 	$sDataDate = $oDB->getOne("select TO_CHAR(lastimportdate - '2 minutes'::interval,'YYYY/MM/DD HH24:MI')||' GMT' from import_status limit 1");
@@ -127,14 +132,17 @@ var_dump($aSearchResults);
 	$bShowPolygons = (isset($_GET['polygon']) && $_GET['polygon']);
 	$aExcludePlaceIDs = $oGeocode->getExcludedPlaceIDs();
 
-	$sMoreURL = CONST_Website_BaseURL.'search?format='.urlencode($sOutputFormat).'&exclude_place_ids='.join(',',$oGeocode->getExcludedPlaceIDs());
-	if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) $sMoreURL .= '&accept-language='.$_SERVER["HTTP_ACCEPT_LANGUAGE"];
-	if ($bShowPolygons) $sMoreURL .= '&polygon=1';
-	if ($oGeocode->getIncludeAddressDetails()) $sMoreURL .= '&addressdetails=1';
-	if ($sViewBox) $sMoreURL .= '&viewbox='.urlencode($sViewBox);
-	if (isset($_GET['nearlat']) && isset($_GET['nearlon'])) $sMoreURL .= '&nearlat='.(float)$_GET['nearlat'].'&nearlon='.(float)$_GET['nearlon'];
-	$sMoreURL .= '&q='.urlencode($sQuery);
-
+#	$sMoreURL = CONST_Website_BaseURL.'search?format='.urlencode($sOutputFormat).'&exclude_place_ids='.join(',',$oGeocode->getExcludedPlaceIDs());
+#	if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) $sMoreURL .= '&accept-language='.$_SERVER["HTTP_ACCEPT_LANGUAGE"];
+#	if ($bShowPolygons) $sMoreURL .= '&polygon=1';
+#	if ($oGeocode->getIncludeAddressDetails()) $sMoreURL .= '&addressdetails=1';
+#	if ($sViewBox) $sMoreURL .= '&viewbox='.urlencode($sViewBox);
+#	if (isset($_GET['nearlat']) && isset($_GET['nearlon'])) $sMoreURL .= '&nearlat='.(float)$_GET['nearlat'].'&nearlon='.(float)$_GET['nearlon'];
+#	$sMoreURL .= '&q='.urlencode($sQuery);
+print "Results\n";
+#print_r($sQuery);
+#print_r($sQuery);
+#print_r($aSearchResults);
 #	if (CONST_Debug) exit;
 
 #	include(CONST_BasePath.'/lib/template/search-'.$sOutputFormat.'.php');

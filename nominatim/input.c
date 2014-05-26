@@ -19,19 +19,6 @@
 
 #include "input.h"
 
-struct Input
-{
-    char *name;
-    enum { plainFile, gzipFile, bzip2File } type;
-    void *fileHandle;
-    // needed by bzip2 when decompressing from multiple streams. other
-    // decompressors must ignore it.
-    FILE *systemHandle;
-    int eof;
-    char buf[4096];
-    int buf_ptr, buf_fill;
-};
-
 // tries to re-open the bz stream at the next stream start.
 // returns 0 on success, -1 on failure.
 int bzReOpen(struct Input *ctx, int *error)
@@ -61,9 +48,9 @@ int bzReOpen(struct Input *ctx, int *error)
     return 0;
 }
 
-int readFile(void *context, char * buffer, int len)
+int readFile(struct Input *context, char * buffer, int len)
 {
-    struct Input *ctx = context;
+  struct Input *ctx = context;
     void *f = ctx->fileHandle;
     int l = 0, error = 0;
 
@@ -72,15 +59,15 @@ int readFile(void *context, char * buffer, int len)
 
     switch (ctx->type)
     {
-    case plainFile:
+    case Input::plainFile:
         l = read(*(int *)f, buffer, len);
         if (l <= 0) ctx->eof = 1;
         break;
-    case gzipFile:
+    case Input::gzipFile:
         l = gzread((gzFile)f, buffer, len);
         if (l <= 0) ctx->eof = 1;
         break;
-    case bzip2File:
+    case Input::bzip2File:
         l = BZ2_bzRead(&error, (BZFILE *)f, buffer, len);
 
         // error codes BZ_OK and BZ_STREAM_END are both "OK", but the stream
@@ -111,11 +98,11 @@ int readFile(void *context, char * buffer, int len)
 
 char inputGetChar(void *context)
 {
-    struct Input *ctx = context;
+  struct Input *ctx = (struct Input *)context;
 
     if (ctx->buf_ptr == ctx->buf_fill)
     {
-        ctx->buf_fill = readFile(context, &ctx->buf[0], sizeof(ctx->buf));
+        ctx->buf_fill = readFile(ctx, &ctx->buf[0], sizeof(ctx->buf));
         ctx->buf_ptr = 0;
         if (ctx->buf_fill == 0)
             return 0;
@@ -137,7 +124,7 @@ int inputEof(void *context)
 void *inputOpen(const char *name)
 {
     const char *ext = strrchr(name, '.');
-    struct Input *ctx = malloc (sizeof(*ctx));
+    struct Input *ctx = (struct Input *)malloc (sizeof(*ctx));
 
     if (!ctx)
         return NULL;
@@ -149,7 +136,7 @@ void *inputOpen(const char *name)
     if (ext && !strcmp(ext, ".gz"))
     {
         ctx->fileHandle = (void *)gzopen(name, "rb");
-        ctx->type = gzipFile;
+        ctx->type = Input::gzipFile;
     }
     else if (ext && !strcmp(ext, ".bz2"))
     {
@@ -162,12 +149,12 @@ void *inputOpen(const char *name)
         }
 
         ctx->fileHandle = (void *)BZ2_bzReadOpen(&error, ctx->systemHandle, 0, 0, NULL, 0);
-        ctx->type = bzip2File;
+        ctx->type = Input::bzip2File;
 
     }
     else
     {
-        int *pfd = malloc(sizeof(pfd));
+      int *pfd = (int*)malloc(sizeof(pfd));
         if (pfd)
         {
             if (!strcmp(name, "-"))
@@ -189,7 +176,7 @@ void *inputOpen(const char *name)
             }
         }
         ctx->fileHandle = (void *)pfd;
-        ctx->type = plainFile;
+        ctx->type = Input::plainFile;
     }
     if (!ctx->fileHandle)
     {
@@ -203,19 +190,19 @@ void *inputOpen(const char *name)
 
 int inputClose(void *context)
 {
-    struct Input *ctx = context;
+  struct Input *ctx = (struct Input *)context;
     void *f = ctx->fileHandle;
 
     switch (ctx->type)
     {
-    case plainFile:
+    case Input::plainFile:
         close(*(int *)f);
         free(f);
         break;
-    case gzipFile:
+    case Input::gzipFile:
         gzclose((gzFile)f);
         break;
-    case bzip2File:
+    case Input::bzip2File:
         BZ2_bzclose((BZFILE *)f);
         break;
     default:
@@ -238,5 +225,5 @@ xmlTextReaderPtr inputUTF8(const char *name)
         return NULL;
     }
 
-    return xmlReaderForIO(readFile, inputClose, (void *)ctx, NULL, NULL, 0);
+    return xmlReaderForIO((xmlInputReadCallback)readFile, inputClose, (void *)ctx, NULL, NULL, 0);
 }

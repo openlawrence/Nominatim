@@ -677,14 +677,21 @@
 		{
 			foreach($aTokens as $sToken => $aWords)
 			{
-				if ($aWords)
-				{
-					foreach($aWords as $aToken)
-					{
-						$aWordsIDs[$aToken['word_id']] = $sToken.'('.$aToken['word_id'].')';
-					}
-				}
-			}
+                if ($aWords)
+                {
+                    foreach($aWords as $aToken)
+                    {
+                        if (array_key_exists('word_id', $aToken))
+                        {
+                            $aWordsIDs[$aToken['word_id']] = $sToken.'('.$aToken['word_id'].')';
+                        }
+                        else
+                        {
+                            print("Check Token:" . var_export($aToken) . "\n");
+                        }
+                    }
+                }
+            }
 		}
 		echo "<table border=\"1\">";
 		echo "<tr><th>rank</th><th>Name Tokens</th><th>Name Not</th><th>Address Tokens</th><th>Address Not</th><th>country</th><th>operator</th><th>class</th><th>type</th><th>house#</th><th>Lat</th><th>Lon</th><th>Radius</th></tr>";

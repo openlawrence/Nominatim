@@ -83,6 +83,8 @@ $$
 LANGUAGE 'plpgsql' IMMUTABLE;
 
 -- returns NULL if the word is too common
+-- creates a word id for a word
+-- called from make_keywords 
 CREATE OR REPLACE FUNCTION getorcreate_word_id(lookup_word TEXT) 
   RETURNS INTEGER
   AS $$
@@ -210,6 +212,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
+-- this is called from 
 CREATE OR REPLACE FUNCTION getorcreate_name_id(lookup_word TEXT, src_word TEXT) 
   RETURNS INTEGER
   AS $$
@@ -408,6 +411,7 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
+-- called from update_location_nameonly, placex_update
 CREATE OR REPLACE FUNCTION make_keywords(src TEXT) RETURNS INTEGER[]
   AS $$
 DECLARE
@@ -2924,7 +2928,7 @@ END;
 $$
 LANGUAGE plpgsql IMMUTABLE;
 
-DROP TYPE wikipedia_article_match CASCADE;
+DROP TYPE IF EXISTS wikipedia_article_match CASCADE;
 create type wikipedia_article_match as (
   language TEXT,
   title TEXT,

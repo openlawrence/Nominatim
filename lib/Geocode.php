@@ -365,6 +365,14 @@
 
 		function getDetails($aPlaceIDs)
 		{
+
+			if (CONST_Debug) { 
+                print "DEBUG:getDetails("; 
+                var_dump($aPlaceIDs);
+                print ");\n"; 
+            }
+
+
 			if (sizeof($aPlaceIDs) == 0)  return array();
 
 			$sLanguagePrefArraySQL = "ARRAY[".join(',',array_map("getDBQuoted",$this->aLangPrefOrder))."]";
@@ -430,7 +438,9 @@
 			}
 
 			$sSQL .= " order by importance desc";
-			if (CONST_Debug) { echo "<hr>"; var_dump($sSQL); }
+			if (CONST_Debug) { 
+                print "DEBUG23\n";
+                echo "SQL"; var_dump($sSQL); }
 			$aSearchResults = $this->oDB->getAll($sSQL);
 
 			if (PEAR::IsError($aSearchResults))
@@ -473,6 +483,10 @@
 		*/
 		function lookup()
 		{
+			if (CONST_Debug) { 
+                print "DEBUG:lookup()\n"; 
+            }
+
 			if (!$this->sQuery && !$this->aStructuredQuery) return false;
 
 			$sLanguagePrefArraySQL = "ARRAY[".join(',',array_map("getDBQuoted",$this->aLangPrefOrder))."]";
@@ -552,6 +566,7 @@
 					$sQuery = trim(str_replace($aData[0], ' ', $sQuery));
 				}
 			}
+            // East west
 			elseif (preg_match('/\\b([0-9]+)[ ]+([0-9]+[0-9.]*)?[ ]+([NS])[, ]+([0-9]+)[ ]+([0-9]+[0-9.]*)?[ ]+([EW])\\b/', $sQuery, $aData))
 			{
 				$fQueryLat = ($aData[3]=='N'?1:-1) * ($aData[1] + $aData[2]/60);
@@ -562,6 +577,7 @@
 					$sQuery = trim(str_replace($aData[0], ' ', $sQuery));
 				}
 			}
+            // lat/long
 			elseif (preg_match('/(\\[|^|\\b)(-?[0-9]+[0-9]*\\.[0-9]+)[, ]+(-?[0-9]+[0-9]*\\.[0-9]+)(\\]|$|\\b)/', $sQuery, $aData))
 			{
 				$fQueryLat = $aData[2];
@@ -578,9 +594,24 @@
 			{
 				// Start with a blank search
 				$aSearches = array(
-					array('iSearchRank' => 0, 'iNamePhrase' => -1, 'sCountryCode' => false, 'aName'=>array(), 'aAddress'=>array(), 'aFullNameAddress'=>array(),
-					      'aNameNonSearch'=>array(), 'aAddressNonSearch'=>array(),
-					      'sOperator'=>'', 'aFeatureName' => array(), 'sClass'=>'', 'sType'=>'', 'sHouseNumber'=>'', 'fLat'=>'', 'fLon'=>'', 'fRadius'=>'')
+					array(
+                        'iSearchRank' => 0, 
+                        'iNamePhrase' => -1, 
+                        'sCountryCode' => false, 
+                        'aName'=>array(), 
+                        'aAddress'=>array(), 
+                        'aFullNameAddress'=>array(),
+                        'aNameNonSearch'=>array(), 
+                        'aAddressNonSearch'=>array(),
+                        'sOperator'=>'', 
+                        'aFeatureName' => array(), 
+                        'sClass'=>'', 
+                        'sType'=>'', 
+                        'sHouseNumber'=>'', 
+                        'sSuiteNumber'=>'', 
+                        'fLat'=>'', 
+                        'fLon'=>'', 
+                        'fRadius'=>'')
 				);
 
 				// Do we have a radius search?
@@ -612,11 +643,15 @@
 				}
 				foreach($aSpecialTermsRaw as $aSpecialTerm)
 				{
+
 					$sQuery = str_replace($aSpecialTerm[0], ' ', $sQuery);
 					$sToken = $this->oDB->getOne("select make_standard_name('".$aSpecialTerm[1]."') as string");
 					$sSQL = 'select * from (select word_id,word_token, word, class, type, country_code, operator';
 					$sSQL .= ' from word where word_token in (\' '.$sToken.'\')) as x where (class is not null and class not in (\'place\')) or country_code is not null';
-					if (CONST_Debug) var_Dump($sSQL);
+					if (CONST_Debug){
+                        print "DEBUG Special Terms\n";
+                        var_export($sSQL);
+                    }
 					$aSearchWords = $this->oDB->getAll($sSQL);
 					$aNewSearches = array();
 					foreach($aSearches as $aSearch)
@@ -666,7 +701,10 @@
 					if (PEAR::isError($aPhrase))
 					{
 						userError("Illegal query string (not an UTF-8 string): ".$sPhrase);
-						if (CONST_Debug) var_dump($aPhrase);
+						if (CONST_Debug) {
+                            print "DEBUG25\n";
+                            var_dump($aPhrase);
+                        }
 						exit;
 					}
 					if (trim($aPhrase['string']))
@@ -692,7 +730,11 @@
 					$sSQL = 'select word_id,word_token, word, class, type, country_code, operator, search_name_count';
 					$sSQL .= ' from word where word_token in ('.join(',',array_map("getDBQuoted",$aTokens)).')';
 
-					if (CONST_Debug) var_Dump($sSQL);
+					if (CONST_Debug) {
+                        print "DEBUG Step One:\n";
+                        var_export($sSQL);
+                        print "\n";
+                    }
 
 					$aValidTokens = array();
 					if (sizeof($aTokens)) $aDatabaseWords = $this->oDB->getAll($sSQL);
@@ -714,20 +756,30 @@
 
 						if (isset($aValidTokens[$aToken['word_token']]))
 						{
+                            // word token contains the string value without punctation
 							$aValidTokens[$aToken['word_token']][] = $aToken;
 						}
 						else
 						{
+                            // start a new token
 							$aValidTokens[$aToken['word_token']] = array($aToken);
 						}
 						if (!$aToken['class'] && !$aToken['country_code']) $aPossibleMainWordIDs[$aToken['word_id']] = 1;
 						$aWordFrequencyScores[$aToken['word_id']] = $aToken['search_name_count'] + 1;
 					}
-					if (CONST_Debug) var_Dump($aPhrases, $aValidTokens);
+					if (CONST_Debug) {
+                        print "DEBUG phrases\n";
+                        print var_export($aPhrases);
+
+                        print "DEBUG valid tokens, contains data from the words tables\n";
+                        var_export($aValidTokens);
+                    }
 
 					// Try and calculate GB postcodes we might be missing
 					foreach($aTokens as $sToken)
 					{
+						print "DEBUG TOKEN" + strtoupper(trim($sToken)) + "\n";
+
 						// Source of gb postcodes is now definitive - always use
 						if (preg_match('/^([A-Z][A-Z]?[0-9][0-9A-Z]? ?[0-9])([A-Z][A-Z])$/', strtoupper(trim($sToken)), $aData))
 						{
@@ -768,11 +820,24 @@
 
 					foreach($aTokens as $sToken)
 					{
+                        if (CONST_Debug) {
+                            print "DEBUG token $sToken\n";
+                        }
+
 						// Unknown single word token with a number - assume it is a house number
 						if (!isset($aValidTokens[' '.$sToken]) && strpos($sToken,' ') === false && preg_match('/[0-9]/', $sToken))
 						{
 							$aValidTokens[' '.$sToken] = array(array('class'=>'place','type'=>'house'));
 						}
+                        elseif (!isset($aValidTokens[' '.$sToken]) && preg_match('/(ste|suite) [0-9 ]+/', $sToken))
+						{
+							$aValidTokens[' '.$sToken] = array(array(
+                                'class'=>'place',
+                                'type'=>'suite', 
+                                'operator' => 'name',
+                            ));
+						}
+
 					}
 
 					// Any words that have failed completely?
@@ -814,7 +879,29 @@
 								foreach($aWordsetSearches as $aCurrentSearch)
 								{
 									//echo "<i>";
-									//var_dump($aCurrentSearch);
+                                    if (CONST_Debug) {
+                                        //print "DEBUG current search\n";
+                                        //#var_dump($aCurrentSearch);
+                                        foreach ($aCurrentSearch as $key => $value) {
+                                            if (is_array ( $value ) )
+                                                {
+                                                    if (count($value) > 1) 
+                                                        {
+                                                            print "DEBUG: current search $key => ". var_dump($value). "\n";
+                                                        }
+                                                    elseif (count($value) > 1) 
+                                                        {
+                                                            print "DEBUG: current search $key => ". $value[0]. "\n";
+                                                        }
+                                                } 
+                                            else 
+                                                {
+                                                    if ($value != "" ) {
+                                                        print "DEBUG: current search $key => $value\n";
+                                                    }
+                                                }
+                                        }
+                                    }
 									//echo "</i>";
 
 									// If the token is valid
@@ -824,6 +911,12 @@
 										{
 											$aSearch = $aCurrentSearch;
 											$aSearch['iSearchRank']++;
+
+                                            if (CONST_Debug) {
+                                                print "DEBUG search tokens 123: $sPhraseType\n";
+                                                var_dump($aSearchTerm);
+                                            }
+
 											if (($sPhraseType == '' || $sPhraseType == 'country') && !empty($aSearchTerm['country_code']) && $aSearchTerm['country_code'] != '0')
 											{
 												if ($aSearch['sCountryCode'] === false)
@@ -906,6 +999,7 @@
 											{
 												if ($aSearch['sClass'] === '')
 												{
+                                                    
 													$aSearch['sOperator'] = $aSearchTerm['operator'];
 													$aSearch['sClass'] = $aSearchTerm['class'];
 													$aSearch['sType'] = $aSearchTerm['type'];
@@ -951,6 +1045,8 @@
 											}
 										}
 									}
+                                    //  end of main loop
+
 									if (isset($aValidTokens[$sToken]))
 									{
 										// Allow searching for a word - but at extra cost
@@ -1015,8 +1111,12 @@
 								// Sort and cut
 								usort($aNewWordsetSearches, 'bySearchRank');
 								$aWordsetSearches = array_slice($aNewWordsetSearches, 0, 50);
-							}
-							//var_Dump('<hr>',sizeof($aWordsetSearches)); exit;
+							} // for each token
+
+                            if (CONST_Debug) {
+                                print "DEBUG: aWordsetSearches\n";
+                                var_export($aWordsetSearches);
+                            }
 
 							$aNewPhraseSearches = array_merge($aNewPhraseSearches, $aNewWordsetSearches);
 							usort($aNewPhraseSearches, 'bySearchRank');
@@ -1030,7 +1130,7 @@
 							}
 
 							$aNewPhraseSearches = array_slice($aNewPhraseSearches, 0, 50);
-						}
+						} // for each phrase
 
 						// Re-group the searches by their score, junk anything over 20 as just not worth trying
 						$aGroupedSearches = array();
@@ -1053,7 +1153,10 @@
 							if ($iSearchCount > 50) break;
 						}
 
-						//if (CONST_Debug) _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
+						if (CONST_Debug) {
+                            print "DEBUG: debugDumpGroupedSearches\n";
+                            _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
+                        }
 
 					}
 
@@ -1066,6 +1169,11 @@
 					{
 						if ($aSearch['iSearchRank'] < $this->iMaxRank)
 						{
+                            if (CONST_Debug) {
+                                print "DEBUG JUNK\n";
+                                var_export($aSearch);
+                            }
+
 							if (!isset($aGroupedSearches[$aSearch['iSearchRank']])) $aGroupedSearches[$aSearch['iSearchRank']] = array();
 							$aGroupedSearches[$aSearch['iSearchRank']][] = $aSearch;
 						}
@@ -1073,7 +1181,10 @@
 					ksort($aGroupedSearches);
 				}
 
-				if (CONST_Debug) var_Dump($aGroupedSearches);
+				if (CONST_Debug) {
+                    print "DEBUG aGroupedSearches:\n";
+                    var_export($aGroupedSearches);
+                }
 
 				if ($this->bReverseInPlan)
 				{
@@ -1153,7 +1264,14 @@
 					}
 				}
 
-				if (CONST_Debug) _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
+				if (CONST_Debug) {
+                    print "DEBUG: debugDumpGroupedSearches\n";
+                    _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
+                    print "DEBUG: aGroupedSearches\n";
+                    var_export($aGroupedSearches);
+                    print "DEBUG: aValidTokens\n";
+                    var_export($aValidTokens);
+                }
 
 				$iGroupLoop = 0;
 				$iQueryLoop = 0;
@@ -1164,8 +1282,13 @@
 					{
 						$iQueryLoop++;
 
-						if (CONST_Debug) { echo "<hr><b>Search Loop, group $iGroupLoop, loop $iQueryLoop</b>"; }
-						if (CONST_Debug) _debugDumpGroupedSearches(array($iGroupedRank => array($aSearch)), $aValidTokens);
+						if (CONST_Debug) {
+                            print "DEBUG: Search Loop, group $iGroupLoop, loop $iQueryLoop\n"; 
+                        }
+						if (CONST_Debug) {
+                            print "DEBUG debugDumpGroupedSearches\n";
+                            _debugDumpGroupedSearches(array($iGroupedRank => array($aSearch)), $aValidTokens);
+                        }
 
 						// No location term?
 						if (!sizeof($aSearch['aName']) && !sizeof($aSearch['aAddress']) && !$aSearch['fLon'])
@@ -1178,7 +1301,11 @@
 									$sSQL = "select place_id from placex where calculated_country_code='".$aSearch['sCountryCode']."' and rank_search = 4";
 									if ($sCountryCodesSQL) $sSQL .= " and calculated_country_code in ($sCountryCodesSQL)";
 									$sSQL .= " order by st_area(geometry) desc limit 1";
-									if (CONST_Debug) var_dump($sSQL);
+									if (CONST_Debug) {
+
+                                        print "DEBUG7\n";
+                                        var_dump($sSQL);
+                                    }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
 								}
 								else
@@ -1203,7 +1330,11 @@
 									}
 									if ($sViewboxCentreSQL) $sSQL .= " order by st_distance($sViewboxCentreSQL, ct.centroid) asc";
 									$sSQL .= " limit $this->iLimit";
-									if (CONST_Debug) var_dump($sSQL);
+
+									if (CONST_Debug) {
+                                        print "DEBUG8\n";
+                                        var_dump($sSQL);
+                                    }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
 
 									// If excluded place IDs are given, it is fair to assume that
@@ -1218,7 +1349,13 @@
 										if ($sCountryCodesSQL) $sSQL .= " and calculated_country_code in ($sCountryCodesSQL)";
 										if ($sViewboxCentreSQL) $sSQL .= " order by st_distance($sViewboxCentreSQL, ct.centroid) asc";
 										$sSQL .= " limit $this->iLimit";
-										if (CONST_Debug) var_dump($sSQL);
+
+                                        
+                                        if (CONST_Debug) {
+                                            print "DEBUG9\n";
+                                            var_dump($sSQL);
+                                        }
+
 										$aPlaceIDs = $this->oDB->getCol($sSQL);
 									}
 								}
@@ -1229,7 +1366,12 @@
 									if ($sCountryCodesSQL) $sSQL .= " and calculated_country_code in ($sCountryCodesSQL)";
 									if ($sViewboxCentreSQL)	$sSQL .= " order by st_distance($sViewboxCentreSQL, centroid) asc";
 									$sSQL .= " limit $this->iLimit";
-									if (CONST_Debug) var_dump($sSQL);
+
+                                    if (CONST_Debug) {
+                                        print "DEBUG10\n";
+                                        var_dump($sSQL);
+                                    }
+
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
 								}
 							}
@@ -1314,13 +1456,20 @@
 								else
 									$sSQL .= " limit ".$this->iLimit;
 
-								if (CONST_Debug) { var_dump($sSQL); }
+
+                                if (CONST_Debug) {
+                                        print "DEBUG11 SQL\n";
+                                        var_dump($sSQL);
+                                    }
+
 								$aViewBoxPlaceIDs = $this->oDB->getAll($sSQL);
 								if (PEAR::IsError($aViewBoxPlaceIDs))
 								{
 									failInternalError("Could not get places for search terms.", $sSQL, $aViewBoxPlaceIDs);
 								}
-								//var_dump($aViewBoxPlaceIDs);
+                                if (CONST_Debug) {
+                                    var_dump($aViewBoxPlaceIDs);
+                                }
 								// Did we have an viewbox matches?
 								$aPlaceIDs = array();
 								$bViewBoxMatch = false;
@@ -1334,7 +1483,7 @@
 									$this->exactMatchCache[$aViewBoxRow['place_id']] = $aViewBoxRow['exactmatch'];
 								}
 							}
-							//var_Dump($aPlaceIDs);
+							//var_export($aPlaceIDs);
 							//exit;
 
 							if ($aSearch['sHouseNumber'] && sizeof($aPlaceIDs))
@@ -1350,7 +1499,10 @@
 									$sSQL .= " and place_id not in (".join(',',$this->aExcludePlaceIDs).")";
 								}
 								$sSQL .= " limit $this->iLimit";
-								if (CONST_Debug) var_dump($sSQL);
+								if (CONST_Debug) {
+                                    print "DEBUG12\n";
+                                    var_dump($sSQL);
+                                }
 								$aPlaceIDs = $this->oDB->getCol($sSQL);
 
 								// If not try the aux fallback table
@@ -1362,7 +1514,10 @@
 										$sSQL .= " and place_id not in (".join(',',$this->aExcludePlaceIDs).")";
 									}
 									//$sSQL .= " limit $this->iLimit";
-									if (CONST_Debug) var_dump($sSQL);
+									if (CONST_Debug) { 
+                                        print "DEBUG13\n";
+                                        var_dump($sSQL);
+                                    }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
 								}
 
@@ -1374,7 +1529,10 @@
 										$sSQL .= " and place_id not in (".join(',',$this->aExcludePlaceIDs).")";
 									}
 									//$sSQL .= " limit $this->iLimit";
-									if (CONST_Debug) var_dump($sSQL);
+									if (CONST_Debug) { 
+                                        print "DEBUG14\n";
+                                        var_dump($sSQL);
+                                    }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
 								}
 
@@ -1398,7 +1556,10 @@
 									$sSQL .= " and linked_place_id is null";
 									if ($sCountryCodesSQL) $sSQL .= " and calculated_country_code in ($sCountryCodesSQL)";
 									$sSQL .= " order by rank_search asc limit $this->iLimit";
-									if (CONST_Debug) var_dump($sSQL);
+									if (CONST_Debug) {
+                                        print "DEBUG14\n";
+                                        var_dump($sSQL);
+                                    }
 									$aClassPlaceIDs = $this->oDB->getCol($sSQL);
 								}
 
@@ -1409,7 +1570,10 @@
 
 									$sSQL = "select min(rank_search) from placex where place_id in ($sPlaceIDs)";
 
-									if (CONST_Debug) var_dump($sSQL);
+									if (CONST_Debug) { 
+                                        print "DEBUG15\n";
+                                        var_dump($sSQL);
+                                    }
 									$this->iMaxRank = ((int)$this->oDB->getOne($sSQL));
 
 									// For state / country level searches the normal radius search doesn't work very well
@@ -1418,7 +1582,10 @@
 									{
 										// Try and get a polygon to search in instead
 										$sSQL = "select geometry from placex where place_id in ($sPlaceIDs) and rank_search < $this->iMaxRank + 5 and st_geometrytype(geometry) in ('ST_Polygon','ST_MultiPolygon') order by rank_search asc limit 1";
-										if (CONST_Debug) var_dump($sSQL);
+										if (CONST_Debug) {
+                                            print "DEBUG16\n";
+                                            var_dump($sSQL);
+                                        }
 										$sPlaceGeom = $this->oDB->getOne($sSQL);
 									}
 
@@ -1430,7 +1597,10 @@
 									{
 										$this->iMaxRank += 5;
 										$sSQL = "select place_id from placex where place_id in ($sPlaceIDs) and rank_search < $this->iMaxRank";
-										if (CONST_Debug) var_dump($sSQL);
+										if (CONST_Debug) {
+                                            print "DEBUG17\n";
+                                            var_dump($sSQL);
+                                        }
 										$aPlaceIDs = $this->oDB->getCol($sSQL);
 										$sPlaceIDs = join(',',$aPlaceIDs);
 									}
@@ -1469,7 +1639,10 @@
 											if ($sOrderBySQL) $sSQL .= "order by ".$sOrderBySQL." asc";
 											if ($this->iOffset) $sSQL .= " offset $this->iOffset";
 											$sSQL .= " limit $this->iLimit";
-											if (CONST_Debug) var_dump($sSQL);
+											if (CONST_Debug){
+                                                print "DEBUG18\n";
+                                                var_dump($sSQL);
+                                            }
 											$aClassPlaceIDs = array_merge($aClassPlaceIDs, $this->oDB->getCol($sSQL));
 										}
 										else
@@ -1491,7 +1664,10 @@
 											if ($sOrderBy) $sSQL .= "order by ".$OrderBysSQL." asc";
 											if ($this->iOffset) $sSQL .= " offset $this->iOffset";
 											$sSQL .= " limit $this->iLimit";
-											if (CONST_Debug) var_dump($sSQL);
+											if (CONST_Debug){
+                                                print "DEBUG19\n";
+                                                var_dump($sSQL);
+                                            }
 											$aClassPlaceIDs = array_merge($aClassPlaceIDs, $this->oDB->getCol($sSQL));
 										}
 									}
@@ -1508,7 +1684,9 @@
 							failInternalError("Could not get place IDs from tokens." ,$sSQL, $aPlaceIDs);
 						}
 
-						if (CONST_Debug) { echo "<br><b>Place IDs:</b> "; var_Dump($aPlaceIDs); }
+						if (CONST_Debug) {
+                            print "DEBUG Place IDs: ".  var_export($aPlaceIDs, true); 
+                        }
 
 						foreach($aPlaceIDs as $iPlaceID)
 						{
@@ -1528,7 +1706,10 @@
 						$sSQL .= "and (30 between $this->iMinAddressRank and $this->iMaxAddressRank ";
 						if ($this->aAddressRankList) $sSQL .= " OR 30 in (".join(',',$this->aAddressRankList).")";
 						$sSQL .= ")";
-						if (CONST_Debug) var_dump($sSQL);
+						if (CONST_Debug) {
+                            print "DEBUG21\n";
+                            var_dump($sSQL);
+                        }
 						$aResultPlaceIDs = $this->oDB->getCol($sSQL);
 					}
 

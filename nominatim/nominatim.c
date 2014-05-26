@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     const char *port = "5432";
     const char *conninfo = NULL;
     int index = 0;
-    int export = 0;
+    int export_flag = 0;
     int import = 0;
     int minrank = 0;
     int maxrank = 30;
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
             index=1;
             break;
         case 'e':
-            export=1;
+            export_flag=1;
             break;
         case 'I':
             import=1;
@@ -242,13 +242,13 @@ int main(int argc, char *argv[])
     }
     PQfinish(conn);
 
-    if (!index && !export && !import)
+    if (!index && !export_flag && !import)
     {
         fprintf(stderr, "Please select index, export or import.\n");
         exit(EXIT_FAILURE);
     }
     if (index) nominatim_index(minrank, maxrank, threads, conninfo, file);
-    if (export) nominatim_export(minrank, maxrank, conninfo, file);
+    if (export_flag) nominatim_export(minrank, maxrank, conninfo, file);
     if (import) nominatim_import(conninfo, tagsfile, file);
 
     return 0;

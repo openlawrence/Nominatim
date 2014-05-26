@@ -1,5 +1,7 @@
 bin_PROGRAMS = nominatim
 
+CC= g++ 
+
 nominatim_SOURCES = export.c geometry.cpp import.c index.c input.c nominatim.c postgresql.c sprompt.c
 
 AM_CFLAGS = @PTHREAD_CFLAGS@ @POSTGRESQL_CFLAGS@ @XML_CPPFLAGS@ @BZIP2_CFLAGS@  @GEOS_CFLAGS@ @PROJ_CFLAGS@ -DVERSION='"@PACKAGE_VERSION@"'

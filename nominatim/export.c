@@ -145,6 +145,31 @@ void nominatim_export(int rank_min, int rank_max, const char *conninfo, const ch
     PQfinish(conn);
 }
 
+struct PlaceXDetails {
+
+  typedef enum placex_details_columns {
+    placex_osm_type =0, 
+    placex_osm_id, //1
+    placex_class,  //2
+    placex_type,   //3
+    placex_name,   //4
+    placex_housenumber, //5
+    
+    placex_suitenumber,  //6 -- NEW
+
+    placex_country_code, //7 was 6
+    placex_geometry, //8 was 7
+    placex_admin_level, //9 was 8
+    placex_rank_address, //10 was 9
+    placex_rank_search,  //11 was 10
+    placex_parent_place_id, //12 was 11
+    parent_osm_type, //13 was 12
+    parent_osm_id, //14 was 13
+    placex_indexed_status //15 was 14
+  } T_placex_details_columns ;
+};
+
+
 void nominatim_exportCreatePreparedQueries(PGconn * conn)
 {
     Oid pg_prepare_params[2];
@@ -367,23 +392,26 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
     // Add, modify or delete?
     if (prevQuerySet)
     {
-        if ((PQgetvalue(prevQuerySet->res, 0, 14) && strcmp(PQgetvalue(prevQuerySet->res, 0, 14), "100") == 0) || PQntuples(querySet.res) == 0)
+        if ((
+          PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_indexed_status) 
+          && strcmp(PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_indexed_status), "100") == 0) || PQntuples(querySet.res) == 0)
         {
             // Delete
             if (writer_mutex) pthread_mutex_lock( writer_mutex );
             nominatim_exportStartMode(writer, 3);
             xmlTextWriterStartElement(writer, BAD_CAST "feature");
             xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "place_id", "%li", place_id);
-            xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST PQgetvalue(prevQuerySet->res, 0, 0));
-            xmlTextWriterWriteAttribute(writer, BAD_CAST "id", BAD_CAST PQgetvalue(prevQuerySet->res, 0, 1));
-            xmlTextWriterWriteAttribute(writer, BAD_CAST "key", BAD_CAST PQgetvalue(prevQuerySet->res, 0, 2));
-            xmlTextWriterWriteAttribute(writer, BAD_CAST "value", BAD_CAST PQgetvalue(prevQuerySet->res, 0, 3));
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_osm_type));
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "id", BAD_CAST PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_osm_id));
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "key", BAD_CAST PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_class));
+            xmlTextWriterWriteAttribute(writer, BAD_CAST "value", BAD_CAST PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_type));
             xmlTextWriterEndElement(writer);
             if (writer_mutex) pthread_mutex_unlock( writer_mutex );
             nominatim_exportFreeQueries(&querySet);
             return;
         }
-        if (PQgetvalue(prevQuerySet->res, 0, 14) && strcmp(PQgetvalue(prevQuerySet->res, 0, 14), "1") == 0)
+        if (PQgetvalue(prevQuerySet->res, PlaceXDetails::placex_osm_type, 
+                       PlaceXDetails::placex_indexed_status) && strcmp(PQgetvalue(prevQuerySet->res, 0, PlaceXDetails::placex_indexed_status), "1") == 0)
         {
             // Add
             if (writer_mutex) pthread_mutex_lock( writer_mutex );
@@ -408,15 +436,15 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
 
     xmlTextWriterStartElement(writer, BAD_CAST "feature");
     xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "place_id", "%li", place_id);
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST PQgetvalue(querySet.res, 0, 0));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "id", BAD_CAST PQgetvalue(querySet.res, 0, 1));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "key", BAD_CAST PQgetvalue(querySet.res, 0, 2));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "value", BAD_CAST PQgetvalue(querySet.res, 0, 3));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "rank", BAD_CAST PQgetvalue(querySet.res, 0, 9));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "importance", BAD_CAST PQgetvalue(querySet.res, 0, 10));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_place_id", BAD_CAST PQgetvalue(querySet.res, 0, 11));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_type", BAD_CAST PQgetvalue(querySet.res, 0, 12));
-    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_id", BAD_CAST PQgetvalue(querySet.res, 0, 13));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "type", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_osm_type));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "id", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_osm_id));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "key", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_class));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "value", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_type));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "rank", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_rank_address));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "importance", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_rank_search));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_place_id", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_parent_place_id));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_type", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::parent_osm_type));
+    xmlTextWriterWriteAttribute(writer, BAD_CAST "parent_id", BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::parent_osm_id));
 
     if (PQntuples(querySet.resNames))
     {
@@ -433,10 +461,19 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
         xmlTextWriterEndElement(writer);
     }
 
-    if (PQgetvalue(querySet.res, 0, 5) && strlen(PQgetvalue(querySet.res, 0, 5)))
+    if (PQgetvalue(querySet.res, 0, PlaceXDetails::placex_housenumber) && 
+        strlen(PQgetvalue(querySet.res, 0, PlaceXDetails::placex_housenumber)))
     {
         xmlTextWriterStartElement(writer, BAD_CAST "houseNumber");
-        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 5));
+        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_housenumber));
+        xmlTextWriterEndElement(writer);
+    }
+
+    if (PQgetvalue(querySet.res, 0, PlaceXDetails::placex_suitenumber) && 
+        strlen(PQgetvalue(querySet.res, 0, PlaceXDetails::placex_suitenumber)))
+    {
+        xmlTextWriterStartElement(writer, BAD_CAST "suiteNumber");
+        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_suitenumber));
         xmlTextWriterEndElement(writer);
     }
 
@@ -447,17 +484,17 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
         xmlTextWriterEndElement(writer);
         }*/
 
-    if (PQgetvalue(querySet.res, 0, 8) && strlen(PQgetvalue(querySet.res, 0, 8)))
+    if (PQgetvalue(querySet.res, 0, PlaceXDetails::placex_admin_level) && strlen(PQgetvalue(querySet.res, 0, PlaceXDetails::placex_admin_level)))
     {
         xmlTextWriterStartElement(writer, BAD_CAST "adminLevel");
-        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 8));
+        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_admin_level));
         xmlTextWriterEndElement(writer);
     }
 
-    if (PQgetvalue(querySet.res, 0, 6) && strlen(PQgetvalue(querySet.res, 0, 6)))
+    if (PQgetvalue(querySet.res, 0, PlaceXDetails::placex_country_code) && strlen(PQgetvalue(querySet.res, 0, PlaceXDetails::placex_country_code)))
     {
         xmlTextWriterStartElement(writer, BAD_CAST "countryCode");
-        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 6));
+        xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_country_code));
         xmlTextWriterEndElement(writer);
     }
 
@@ -496,7 +533,7 @@ void nominatim_exportPlace(uint64_t place_id, PGconn * conn,
 
 
     xmlTextWriterStartElement(writer, BAD_CAST "osmGeometry");
-    xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, 7));
+    xmlTextWriterWriteString(writer, BAD_CAST PQgetvalue(querySet.res, 0, PlaceXDetails::placex_geometry));
     xmlTextWriterEndElement(writer);
 
     xmlTextWriterEndElement(writer); // </feature>

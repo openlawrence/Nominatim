@@ -49636,6 +49636,7 @@ kein	100
 -- prefill word table
 
 select count(make_keywords(v)) from (select distinct svals(name) as v from place) as w where v is not null;
+select count(make_keywords(v)) from (select distinct suitenumber as v from place) as w where v is not null;
 select count(make_keywords(v)) from (select distinct postcode as v from place) as w where v is not null;
 select count(getorcreate_housenumber_id(v)) from (select distinct housenumber as v from place where housenumber is not null) as w;
 

@@ -14,3 +14,5 @@ select word_id, word, word_token  from word where word_token like 'mass%' ;
 
 select * from search_name where name_vector @> ARRAY[12980];
 
+So we want to get the abbreviations of the street names :
+mass. massachcets street.

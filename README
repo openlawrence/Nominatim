@@ -56,7 +56,11 @@ osm2pgsql -lsc -O gazetteer --hstore -C 3585 -P 5432 -d nominatim /mnt/data/home
 
 nominatim/nominatim --verbose -i -d nominatim -P 5432 -t 7 -r 30
 
- 
+
+php ./website/search_cli.php -q "900 mass"
+select make_standard_name('900 Massachusets Street') as string
+select word_id,word_token, word, class, type, country_code, operator, search_name_count from word where word_token in (' 900 massachusets st','900 massachusets st',' 900','900',' massachusets st','massachusets st',' massachusets','massachusets',' st','st',' 900 massachusets','900 massachusets')
+
 License
 =======
 

@@ -40,7 +40,7 @@ struct feature_tag
     xmlChar *	value;
 };
 
-struct feature
+typedef struct feature
 {
     xmlChar *   placeID;
     xmlChar *	type;
@@ -57,7 +57,7 @@ struct feature
     xmlChar *	houseNumber;
     xmlChar *	suiteNumber;
     xmlChar * 	geometry;
-} feature;
+} t_feature;
 
 int 					fileType = FILETYPE_NONE;
 int 					fileMode = FILEMODE_ADD;
@@ -65,7 +65,7 @@ PGconn *				conn;
 struct feature_address 	featureAddress[MAX_FEATUREADDRESS];
 struct feature_tag	 	featureName[MAX_FEATURENAMES];
 struct feature_tag		featureExtraTag[MAX_FEATUREEXTRATAGS];
-struct feature 			feature;
+t_feature 			feature;
 int 					featureAddressLines = 0;
 int 					featureNameLines = 0;
 int 					featureExtraTagLines = 0;
@@ -406,7 +406,8 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
             }
             PQclear(res);
 
-            partionQueryName = xmlHashLookup2(partionTableTagsHashDelete, feature.key, feature.value);
+            partionQueryName = (char*)xmlHashLookup2(partionTableTagsHashDelete, feature.key, feature.value);
+
             if (partionQueryName)
             {
                 res = PQexecPrepared(conn, partionQueryName, 1, paramValues, NULL, NULL, 0);
@@ -493,7 +494,7 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
             }
             paramValues[7] = (const char *)featureExtraTagString;
 
-            if (strlen(feature.parentPlaceID) == 0)
+            if (strlen((const char *)feature.parentPlaceID) == 0)
                 paramValues[8] = "0";
             else
                 paramValues[8] = (const char *)feature.parentPlaceID;
@@ -549,10 +550,10 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
 
             if (featureNameLines)
             {
-                if (strlen(feature.parentPlaceID) > 0 && featureAddressLines == 0)
+              if (strlen((const char *)feature.parentPlaceID) > 0 && featureAddressLines == 0)
 		{
                     paramValues[0] = (const char *)place_id;
-                    paramValues[1] = feature.parentPlaceID;
+                    paramValues[1] = (const char *)feature.parentPlaceID;
                     if (verbose) fprintf(stderr, "search_name_from_parent_insert: INSERT %s %s\n", paramValues[0], paramValues[1]);
                     res = PQexecPrepared(conn, "search_name_from_parent_insert", 2, paramValues, NULL, NULL, 0);
                     if (PQresultStatus(res) != PGRES_COMMAND_OK)
@@ -578,7 +579,10 @@ void EndElement(xmlTextReaderPtr reader, const xmlChar *name)
                 }
             }
 
-            partionQueryName = xmlHashLookup2(partionTableTagsHash, feature.key, feature.value);
+            partionQueryName = (char*)xmlHashLookup2(
+              partionTableTagsHash, 
+              (xmlChar*)feature.key, 
+              (xmlChar*)feature.value);
             if (partionQueryName)
             {
                 // insert into partition table
@@ -699,7 +703,7 @@ int nominatim_import(const char *conninfo, const char *partionTagsFilename, cons
             fprintf( stderr, "Error partition file\n");
             exit_nicely();
         }
-        partionQueryName = malloc(strlen("partition_insert_")+strlen(osmkey)+strlen(osmvalue)+2);
+        partionQueryName = (char*)malloc(strlen("partition_insert_")+strlen(osmkey)+strlen(osmvalue)+2);
         strcpy(partionQueryName, "partition_insert_");
         strcat(partionQueryName, osmkey);
         strcat(partionQueryName, "_");
@@ -720,7 +724,7 @@ int nominatim_import(const char *conninfo, const char *partionTagsFilename, cons
 
         xmlHashAddEntry2(partionTableTagsHash, BAD_CAST osmkey, BAD_CAST osmvalue, BAD_CAST partionQueryName);
 
-        partionQueryName = malloc(strlen("partition_delete_")+strlen(osmkey)+strlen(osmvalue)+2);
+        partionQueryName = (char*)malloc(strlen("partition_delete_")+strlen(osmkey)+strlen(osmvalue)+2);
         strcpy(partionQueryName, "partition_delete_");
         strcat(partionQueryName, osmkey);
         strcat(partionQueryName, "_");

@@ -48,6 +48,7 @@
 	// Check if osm-file is set and points to a valid file if --all or --import-data is given
 	if ($aCMDResult['import-data'] || $aCMDResult['all'])
 	{
+        print ("PHASE: import-data\n") ;
 		if (!isset($aCMDResult['osm-file']))
 		{
 			fail('missing --osm-file for data import');
@@ -91,6 +92,7 @@
 
 	if ($aCMDResult['create-db'] || $aCMDResult['all'])
 	{
+        print ("PHASE: CREATE-DB\n") ;
 		echo "Create DB\n";
 		$bDidSomething = true;
 		$oDB =& DB::connect(CONST_Database_DSN, false);
@@ -108,6 +110,7 @@
 
 	if ($aCMDResult['setup-db'] || $aCMDResult['all'])
 	{
+        print ("PHASE: SETUP-DB\n") ;
 		echo "Setup DB\n";
 		$bDidSomething = true;
 		// TODO: path detection, detection memory, etc.
@@ -151,37 +154,40 @@
 			exit;
 		}
 
-		pgsqlRunScriptFile(CONST_BasePath.'/data/country_name.sql');
-		pgsqlRunScriptFile(CONST_BasePath.'/data/country_naturalearthdata.sql');
-		pgsqlRunScriptFile(CONST_BasePath.'/data/country_osm_grid.sql');
-		pgsqlRunScriptFile(CONST_BasePath.'/data/gb_postcode_table.sql');
-		if (file_exists(CONST_BasePath.'/data/gb_postcode_data.sql.gz'))
-		{
-			pgsqlRunScriptFile(CONST_BasePath.'/data/gb_postcode_data.sql.gz');
-		}
-		else
-		{
-			echo "WARNING: external UK postcode table not found.\n";
-		}
-		pgsqlRunScriptFile(CONST_BasePath.'/data/us_statecounty.sql');
-		pgsqlRunScriptFile(CONST_BasePath.'/data/us_state.sql');
-		pgsqlRunScriptFile(CONST_BasePath.'/data/us_postcode.sql');
 
-		if ($aCMDResult['no-partitions'])
-		{
-			pgsqlRunScript('update country_name set partition = 0');
-		}
+            pgsqlRunScriptFile(CONST_BasePath.'/data/country_name.sql');
+            pgsqlRunScriptFile(CONST_BasePath.'/data/country_naturalearthdata.sql');
+            pgsqlRunScriptFile(CONST_BasePath.'/data/country_osm_grid.sql');
+            pgsqlRunScriptFile(CONST_BasePath.'/data/gb_postcode_table.sql');
+            if (file_exists(CONST_BasePath.'/data/gb_postcode_data.sql.gz'))
+                {
+                    pgsqlRunScriptFile(CONST_BasePath.'/data/gb_postcode_data.sql.gz');
+                }
+            else
+                {
+                    echo "WARNING: external UK postcode table not found.\n";
+                }
+            pgsqlRunScriptFile(CONST_BasePath.'/data/us_statecounty.sql');
+            pgsqlRunScriptFile(CONST_BasePath.'/data/us_state.sql');
+            pgsqlRunScriptFile(CONST_BasePath.'/data/us_postcode.sql');
+            
+            if ($aCMDResult['no-partitions'])
+                {
+                    pgsqlRunScript('update country_name set partition = 0');
+                }
+        }
 
 		// the following will be needed by create_functions later but
 		// is only defined in the subsequently called create_tables.
 		// Create dummies here that will be overwritten by the proper
 		// versions in create-tables.
-		pgsqlRunScript('CREATE TABLE place_boundingbox ()');
-		pgsqlRunScript('create type wikipedia_article_match as ()');
-	}
+		pgsqlRunScript('CREATE TABLE IF NOT EXISTS place_boundingbox () ');
+#pgsqlRunScript('create type wikipedia_article_match as ()');
+
 
 	if ($aCMDResult['import-data'] || $aCMDResult['all'])
 	{
+        print ("PHASE: IMPORT-DATA\n") ;
 		echo "Import\n";
 		$bDidSomething = true;
 
@@ -212,6 +218,7 @@
 
 	if ($aCMDResult['create-functions'] || $aCMDResult['all'])
 	{
+        print ("PHASE: create-functions\n") ;
 		echo "Functions\n";
 		$bDidSomething = true;
 		if (!file_exists(CONST_BasePath.'/module/nominatim.so')) fail("nominatim module not built");
@@ -255,6 +262,7 @@
 
 	if ($aCMDResult['create-tables'] || $aCMDResult['all'])
 	{
+        print ("PHASE: create-tables\n") ;
 		echo "Tables\n";
 		$bDidSomething = true;
 		pgsqlRunScriptFile(CONST_BasePath.'/sql/tables.sql');
@@ -267,6 +275,7 @@
 
 	if ($aCMDResult['create-partition-tables'] || $aCMDResult['all'])
 	{
+        print ("PHASE: create-partition-tables\n") ;
 		echo "Partition Tables\n";
 		$bDidSomething = true;
 		$oDB =& getDB();
@@ -296,6 +305,7 @@
 
 	if ($aCMDResult['create-partition-functions'] || $aCMDResult['all'])
 	{
+        print ("PHASE: create-partition-functions\n") ;
 		echo "Partition Functions\n";
 		$bDidSomething = true;
 		$oDB =& getDB();
@@ -324,6 +334,7 @@
 
 	if ($aCMDResult['import-wikipedia-articles'] || $aCMDResult['all'])
 	{
+        print ("PHASE: import-wikipedia-articles\n") ;
 		$bDidSomething = true;
 		$sWikiArticlesFile = CONST_BasePath.'/data/wikipedia_article.sql.bin';
 		$sWikiRedirectsFile = CONST_BasePath.'/data/wikipedia_redirect.sql.bin';
@@ -352,6 +363,7 @@
 
 	if ($aCMDResult['load-data'] || $aCMDResult['all'])
 	{
+        print ("PHASE: load-data\n") ;
 		echo "Drop old Data\n";
 		$bDidSomething = true;
 
@@ -516,6 +528,7 @@
 
 	if ($aCMDResult['calculate-postcodes'] || $aCMDResult['all'])
 	{
+        print ("PHASE: calculate-postcodes\n") ;
 		$bDidSomething = true;
 		$oDB =& getDB();
 		if (!pg_query($oDB->connection, 'DELETE from placex where osm_type=\'P\'')) fail(pg_last_error($oDB->connection));
@@ -534,6 +547,7 @@
 
 	if ($aCMDResult['osmosis-init'] || $aCMDResult['all'])
 	{
+        print ("PHASE: osmosis-init\n") ;
 		$bDidSomething = true;
 		$oDB =& getDB();
 
@@ -618,6 +632,7 @@
 
 	if ($aCMDResult['index'] || $aCMDResult['all'])
 	{
+        print ("PHASE: index\n") ;
 		$bDidSomething = true;
 		$sOutputFile = '';
 		if (isset($aCMDResult['index-output'])) $sOutputFile = ' -F '.$aCMDResult['index-output'];
@@ -626,11 +641,14 @@
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
 		passthruCheckReturn($sBaseCmd.' -r 5 -R 25');
 		if (!$aCMDResult['index-noanalyse']) pgsqlRunScript('ANALYSE');
-		passthruCheckReturn($sBaseCmd.' -r 24');
+		passthruCheckReturn($sBaseCmd.' -r 24 -R 29');
+		passthruCheckReturn($sBaseCmd.' -r 29 -R 30');
+		passthruCheckReturn($sBaseCmd.' -r 30 ');
 	}
 
 	if ($aCMDResult['create-search-indices'] || $aCMDResult['all'])
 	{
+        print ("PHASE: create-search-indices\n") ;
 		echo "Search indices\n";
 		$bDidSomething = true;
 		$oDB =& getDB();
@@ -701,7 +719,7 @@
 		if (!isset($aDSNInfo['port']) || !$aDSNInfo['port']) $aDSNInfo['port'] = 5432;
 		$sCMD = 'psql -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
 
-		print("Exec sql ". $sCMD . "\n");
+		print("Exec sql ". $sFilename . "\n");
 
 		$ahGzipPipes = null;
 		if (preg_match('/\\.gz$/', $sFilename))
@@ -761,13 +779,15 @@
 		$sCMD = 'psql -p '.$aDSNInfo['port'].' -d '.$aDSNInfo['database'];
 		if (!$aCMDResult['ignore-errors'])
 			$sCMD .= ' -v ON_ERROR_STOP=1';
-		print("Exec sql ". $sScript . "\n");
+		print("Exec sql2 inline\n");
+		print("SQL $sScript \n");
 		$aDescriptors = array(
 			0 => array('pipe', 'r'),
 			1 => STDOUT, 
 			2 => STDERR
 		);
 		$ahPipes = null;
+        print ("Run Script " + $sCMD + "\n");
 		$hProcess = @proc_open($sCMD, $aDescriptors, $ahPipes);
 		if (!is_resource($hProcess)) fail('unable to start pgsql');
 
@@ -853,7 +873,7 @@
 	function passthruCheckReturn($cmd)
 	{
 		$result = -1;
-		print "run command:" . $cmd;
+		print "run command:'" . $cmd . "'\n ";
 		passthru($cmd, $result);
 		if ($result != 0) fail('Error executing external command: '.$cmd);
 	}
