@@ -84,6 +84,12 @@ select word_id,word_token, word, class, type, country_code, operator, search_nam
 
    osm2pgsql/osm2pgsql -lsc -O gazetteer --hstore -C 3497 -P 5432 -d nominatim data/255_michigan.osm
 
+* Testing:
+
+  bash prepare_step1.sh data/255_michigan.osm
+  bash prepare_step2.sh data/255_michigan.osm
+  bash prepare_step3.sh data/255_michigan.osm
+
 SQL Queries
 ===========
 select * from word;
