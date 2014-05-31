@@ -16,6 +16,24 @@ can be found in the OSM wiki at:
 
 http://wiki.openstreetmap.org/wiki/Nominatim
 
+Triggers
+========
+
+CREATE TRIGGER place_before_delete BEFORE DELETE ON place FOR EACH ROW EXECUTE PROCEDURE place_delete();
+CREATE TRIGGER place_before_insert BEFORE INSERT ON place FOR EACH ROW EXECUTE PROCEDURE place_insert();
+CREATE TRIGGER placex_before_delete AFTER DELETE ON placex FOR EACH ROW EXECUTE PROCEDURE placex_delete();
+CREATE TRIGGER placex_before_insert BEFORE INSERT ON placex FOR EACH ROW EXECUTE PROCEDURE placex_insert();
+CREATE TRIGGER placex_before_update BEFORE UPDATE ON placex FOR EACH ROW EXECUTE PROCEDURE placex_update();
+
+These are ignored.
+select * from placex where class in ('landuse','natural');
+select * from placex where ST_IsEmpty(geometry) OR NOT ST_IsValid(geometry) OR ST_X(ST_Centroid(geometry))::text in ('NaN','Infinity','-Infinity') OR ST_Y(ST_Centroid(geometry))::text in ('NaN','Infinity','-Infinity');
+select * from placex where osm_type='R';
+select osm_type,count(*) from placex group by osm_type;
+
+# search name add words :
+search_name_add_words called by update_location_nameonly called by place_insert
+
 Installation
 ============
 

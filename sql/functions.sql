@@ -940,10 +940,10 @@ DECLARE
 BEGIN
   --DEBUG: RAISE WARNING '% %',NEW.osm_type,NEW.osm_id;
 
-  -- just block these
+  -- just block these. TODO What about landuse without a name but an address?
   IF NEW.class in ('landuse','natural') and NEW.name is null THEN
 --    RAISE WARNING 'empty landuse %',NEW.osm_id;
-    RETURN null;
+--    RETURN null;
   END IF;
 
   IF ST_IsEmpty(NEW.geometry) OR NOT ST_IsValid(NEW.geometry) OR ST_X(ST_Centroid(NEW.geometry))::text in ('NaN','Infinity','-Infinity') OR ST_Y(ST_Centroid(NEW.geometry))::text in ('NaN','Infinity','-Infinity') THEN  
@@ -2212,7 +2212,7 @@ BEGIN
   END IF;
 
   -- Special case - if we are just adding extra words we hack them into the search_name table rather than reindexing
-  IF FALSE AND existingplacex.rank_search < 26
+  IF FALSE AND existingplacex.rank_search < 31
      AND coalesce(existing.housenumber, '') = coalesce(NEW.housenumber, '')
      AND coalesce(existing.street, '') = coalesce(NEW.street, '')
      AND coalesce(existing.addr_place, '') = coalesce(NEW.addr_place, '')
@@ -3138,6 +3138,8 @@ BEGIN
           diameter := 0.002; -- 100 to 200 meters
         ELSEIF rank < 28 THEN
           diameter := 0.001; -- 50 to 100 meters
+        ELSEIF rank < 31 THEN
+          diameter := 0.0005; -- 50 to 100 meters
         END IF;
         IF diameter > 0 THEN
           IF rank >= 26 THEN
