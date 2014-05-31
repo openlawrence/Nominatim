@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version='0.6' upload='true' generator='JOSM'>
+  <bounds minlat='38.9877202' minlon='-95.2540049' maxlat='38.9879036' maxlon='-95.2537984' origin='CGImap 0.3.3 (16436 thorn-01.openstreetmap.org)' />
+  <node id='2281848034' timestamp='2013-04-26T08:49:10Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9876948' lon='-95.253894' />
+  <node id='2281848044' timestamp='2013-04-26T08:49:10Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9877415' lon='-95.2540096' />
+  <node id='2281848053' timestamp='2013-04-26T08:49:11Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9877546' lon='-95.2538544' />
+  <node id='2281848068' timestamp='2013-04-26T08:49:11Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9878013' lon='-95.25397' />
+  <node id='2281848074' timestamp='2013-04-26T08:49:11Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9878155' lon='-95.253814' />
+  <node id='2281848092' timestamp='2013-04-26T08:49:11Z' uid='521572' user='James Michael DuPont' visible='true' version='1' changeset='15869563' lat='38.9878622' lon='-95.2539296' />
+  <way id='218978878' timestamp='2013-04-28T14:37:18Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='15896525'>
+    <nd ref='2281848074' />
+    <nd ref='2281848053' />
+    <nd ref='2281848068' />
+    <nd ref='2281848092' />
+    <nd ref='2281848074' />
+    <tag k='addr:city' v='Lawrence' />
+    <tag k='addr:housenumber' v='255' />
+    <tag k='addr:postcode' v='66044' />
+    <tag k='addr:street' v='North Michigan Street' />
+    <tag k='addr:suite' v='6-29' />
+    <tag k='building' v='residential' />
+  </way>
+  <way id='218978943' timestamp='2013-04-28T14:37:27Z' uid='521572' user='James Michael DuPont' visible='true' version='2' changeset='15896525'>
+    <nd ref='2281848053' />
+    <nd ref='2281848034' />
+    <nd ref='2281848044' />
+    <nd ref='2281848068' />
+    <nd ref='2281848053' />
+    <tag k='addr:city' v='Lawrence' />
+    <tag k='addr:housenumber' v='255' />
+    <tag k='addr:postcode' v='66044' />
+    <tag k='addr:street' v='North Michigan Street' />
+    <tag k='addr:suite' v='6-30' />
+    <tag k='building' v='residential' />
+  </way>
+</osm>

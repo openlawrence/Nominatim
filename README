@@ -79,6 +79,22 @@ php ./website/search_cli.php -q "900 mass"
 select make_standard_name('900 Massachusets Street') as string
 select word_id,word_token, word, class, type, country_code, operator, search_name_count from word where word_token in (' 900 massachusets st','900 massachusets st',' 900','900',' massachusets st','massachusets st',' massachusets','massachusets',' st','st',' 900 massachusets','900 massachusets')
 
+
+* Testing running of importing one file
+
+   osm2pgsql/osm2pgsql -lsc -O gazetteer --hstore -C 3497 -P 5432 -d nominatim data/255_michigan.osm
+
+SQL Queries
+===========
+select * from word;
+select * from place_addressline;
+select geometry_sector,count(*) from placex where  indexed_status = 0 group by geometry_sector order by geometry_sector;
+select * from placex where type != 'postcode';
+select * from place_addressline a join placex b  on a.place_id = b.place_id where type != 'postcode';
+select word_id,word_token, word, class, type, country_code, operator, search_name_count from word where word_token in (' 255 michigan st','255 michigan st',' 255','255',' michigan st','michigan st',' michigan','michigan',' st','st',' 255 michigan','255 michigan');
+select place_id, 0::int as exactmatch from search_name where name_vector @> ARRAY[7] and address_rank between 16 and 27 order by - abs(26 - address_rank) + 3 DESC;
+select * from search_name;
+
 License
 =======
 
