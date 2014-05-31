@@ -101,6 +101,20 @@ select word_id,word_token, word, class, type, country_code, operator, search_nam
 select place_id, 0::int as exactmatch from search_name where name_vector @> ARRAY[7] and address_rank between 16 and 27 order by - abs(26 - address_rank) + 3 DESC;
 select * from search_name;
 
+Testing CLI
+===========
+php website/search_cli.php -f=json -q'900 Massachusetts Street'
+
+Tracing SQL
+==========
+
+edit the file : /etc/postgresql/9.3/main/postgresql.conf
+    debug_print_parse = on
+    debug_print_rewritten = on
+    debug_pretty_print = on
+    log_error_verbosity = verbose
+    log_statement = 'all' 
+
 License
 =======
 
