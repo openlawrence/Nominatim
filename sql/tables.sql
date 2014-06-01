@@ -1,10 +1,10 @@
-drop table import_status;
+drop table if exists import_status;
 CREATE TABLE import_status (
   lastimportdate timestamp NOT NULL
   );
 GRANT SELECT ON import_status TO "www-data" ;
 
-drop table import_osmosis_log;
+drop table if exists import_osmosis_log;
 CREATE TABLE import_osmosis_log (
   batchend timestamp,
   batchsize integer,
@@ -13,7 +13,7 @@ CREATE TABLE import_osmosis_log (
   event text
   );
 
-drop table import_npi_log;
+drop table if exists import_npi_log;
 CREATE TABLE import_npi_log (
   npiid integer,
   batchend timestamp,
@@ -79,7 +79,7 @@ CREATE TABLE word (
   );
 CREATE INDEX idx_word_word_token on word USING BTREE (word_token);
 GRANT SELECT ON word TO "www-data" ;
-DROP SEQUENCE seq_word;
+DROP SEQUENCE if exists seq_word;
 CREATE SEQUENCE seq_word start 1;
 
 drop table IF EXISTS location_area CASCADE;
@@ -169,19 +169,18 @@ GRANT SELECT on reverse_cache to "www-data" ;
 GRANT INSERT on reverse_cache to "www-data" ;
 CREATE INDEX idx_reverse_cache_latlonzoomid ON reverse_cache USING BTREE (latlonzoomid);
 
-drop table country;
+drop table if exists country;
 CREATE TABLE country (
   country_code varchar(2),
   country_name hstore,
   country_default_language_code varchar(2)
   );
 SELECT AddGeometryColumn('country', 'geometry', 4326, 'POLYGON', 2);
-insert into country select iso3166::varchar(2), 'name:en'->cntry_name, null, 
-  ST_Transform(geometryn(the_geom, generate_series(1, numgeometries(the_geom))), 4326) from worldboundaries;
+--insert into country select iso3166::varchar(2), 'name:en'->cntry_name, null,   ST_Transform(geometryn(the_geom, generate_series(1, numgeometries(the_geom))), 4326) from worldboundaries;
 CREATE INDEX idx_country_country_code ON country USING BTREE (country_code);
 CREATE INDEX idx_country_geometry ON country USING GIST (geometry);
 
-drop table placex;
+drop table if exists placex;
 CREATE TABLE placex (
   place_id BIGINT NOT NULL,
   partition integer,
@@ -209,7 +208,7 @@ CREATE INDEX idx_placex_adminname on placex USING BTREE (make_standard_name(name
 
 --CREATE INDEX idx_placex_pendingbylatlon ON placex USING BTREE (geometry_index(geometry_sector,indexed,name),rank_search)  where geometry_index(geometry_sector,indexed,name) IS NOT NULL;
 
-DROP SEQUENCE seq_place;
+DROP SEQUENCE if exists seq_place;
 CREATE SEQUENCE seq_place start 1;
 GRANT SELECT on placex to "www-data" ;
 GRANT SELECT ON search_name to "www-data" ;
@@ -236,13 +235,13 @@ CREATE TRIGGER place_before_delete BEFORE DELETE ON place
 CREATE TRIGGER place_before_insert BEFORE INSERT ON place
     FOR EACH ROW EXECUTE PROCEDURE place_insert();
 
-drop index idx_placex_sector;
+drop index if exists idx_placex_sector;
 CREATE INDEX idx_placex_sector ON placex USING BTREE (geometry_sector,rank_address,osm_type,osm_id);
 
-DROP SEQUENCE seq_postcodes;
+DROP SEQUENCE if exists seq_postcodes;
 CREATE SEQUENCE seq_postcodes start 1;
 
-drop table import_polygon_error;
+drop table if exists import_polygon_error;
 CREATE TABLE import_polygon_error (
   osm_type char(1),
   osm_id INTEGER,
@@ -258,7 +257,7 @@ SELECT AddGeometryColumn('import_polygon_error', 'newgeometry', 4326, 'GEOMETRY'
 CREATE INDEX idx_import_polygon_error_osmid ON import_polygon_error USING BTREE (osm_type, osm_id);
 GRANT SELECT ON import_polygon_error TO "www-data";
 
-drop table import_polygon_delete;
+drop table if exists import_polygon_delete;
 CREATE TABLE import_polygon_delete (
   osm_type char(1),
   osm_id INTEGER,
@@ -268,7 +267,7 @@ CREATE TABLE import_polygon_delete (
 CREATE INDEX idx_import_polygon_delete_osmid ON import_polygon_delete USING BTREE (osm_type, osm_id);
 GRANT SELECT ON import_polygon_delete TO "www-data";
 
-drop sequence file;
+drop sequence if exists file;
 CREATE SEQUENCE file start 1;
 
 -- null table so it won't error

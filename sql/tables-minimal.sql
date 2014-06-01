@@ -101,7 +101,8 @@ CREATE TABLE country (
   country_default_language_code varchar(2)
   );
 SELECT AddGeometryColumn('country', 'geometry', 4326, 'POLYGON', 2);
-insert into country select iso3166::varchar(2), 'name:en'->cntry_name, null, 
+-- this table is not there
+--insert into country select iso3166::varchar(2), 'name:en'->cntry_name, null, 
   ST_Transform(geometryn(the_geom, generate_series(1, numgeometries(the_geom))), 4326) from worldboundaries;
 CREATE INDEX idx_country_country_code ON country USING BTREE (country_code);
 CREATE INDEX idx_country_geometry ON country USING GIST (geometry);

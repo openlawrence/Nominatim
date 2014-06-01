@@ -108,6 +108,17 @@ php website/search_cli.php -f=json -q'900 Massachusetts Street'
 Tracing SQL
 ==========
 
+# For a simple query
+  select make_standard_name('255  Michigan Street STE 6-30') as string
+  select word_id,word_token, word, class, type, country_code, operator, search_name_count from word where word_token in (' 255 michigan st ste 6 30','255 michigan st ste 6 30',' 255','255',' michigan st ste 6 30','michigan st ste 6 30',' michigan','michigan',' st ste 6 30','st ste 6 30',' st','st',' ste 6 30','ste 6 30',' ste','ste',' 6 30','6 30',' 6','6',' 30','30',' ste 6','ste 6',' st ste','st ste',' st ste 6','st ste 6',' michigan st','michigan st',' michigan st ste','michigan st ste',' michigan st ste 6','michigan st ste 6',' 255 michigan','255 michigan',' 255 michigan st','255 michigan st',' 255 michigan st ste','255 michigan st ste',' 255 michigan st ste 6','255 michigan st ste 6')
+  select word_id,word_token, word, class, type, country_code, operator, search_name_count from word where word_token in (' 255 michigan st ste 6 30','255 michigan st ste 6 30',' 255','255',' michigan st ste 6 30','michigan st ste 6 30',' michigan','michigan',' st ste 6 30','st ste 6 30',' st','st',' ste 6 30','ste 6 30',' ste','ste',' 6 30','6 30',' 6','6',' 30','30',' ste 6','ste 6',' st ste','st ste',' st ste 6','st ste 6',' michigan st','michigan st',' michigan st ste','michigan st ste',' michigan st ste 6','michigan st ste 6',' 255 michigan','255 michigan',' 255 michigan st','255 michigan st',' 255 michigan st ste','255 michigan st ste',' 255 michigan st ste 6','255 michigan st ste 6')
+  select place_id, 0::int as exactmatch from search_name where name_vector @> ARRAY[7] order by (case when importance = 0 OR importance IS NULL then 0.75-(search_rank::float/40) else importance end) DESC limit 50
+  select place_id, 0::int as exactmatch from search_name where name_vector @> ARRAY[7] order by (case when importance = 0 OR importance IS NULL then 0.75-(search_rank::float/40) else importance end) DESC limit 50
+  select place_id, 0::int as exactmatch from search_name where name_vector @> ARRAY[7] and address_rank between 16 and 27 order by - abs(26 - address_rank) + 3 DESC limit 50
+  select TO_CHAR(lastimportdate - '2 minutes'::interval,'YYYY/MM/DD HH24:MI')||' GMT' from import_status limit 1
+
+
+
 edit the file : /etc/postgresql/9.3/main/postgresql.conf
     debug_print_parse = on
     debug_print_rewritten = on
