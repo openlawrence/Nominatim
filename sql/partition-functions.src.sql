@@ -357,3 +357,51 @@ BEGIN
 END
 $$
 LANGUAGE plpgsql;
+
+
+create or replace function insertLocationAreaRoadNear(
+	  in_partition integer, 
+          in_place_id bigint, 
+          in_country_code VARCHAR(2), 
+          in_keywords INTEGER[], 
+	  in_rank_search INTEGER, 
+          in_rank_address INTEGER, 
+          in_estimate BOOLEAN, 
+	  in_centroid GEOMETRY, 
+          in_geometry GEOMETRY) RETURNS BOOLEAN AS $$
+	DECLARE
+	BEGIN
+	
+	-- start
+--	  IF in_partition = '-partition-' THEN
+--	    INSERT INTO location_area_roadnear_-partition- values (in_partition, in_place_id, in_country_code, in_keywords, in_rank_search, in_rank_address, in_estimate, in_centroid, in_geometry);
+	    INSERT INTO location_area_roadnear values (in_partition, in_place_id, in_country_code, in_keywords, in_rank_search, in_rank_address, in_estimate, in_centroid, in_geometry);
+	    RETURN TRUE;
+--	  END IF;
+	-- end
+	
+--	  RAISE EXCEPTION 'Unknown partition %', in_partition;
+--	  RETURN FALSE;
+	END
+	$$
+	LANGUAGE plpgsql;
+
+create or replace function insertLocationAreaRoadfar(
+	  in_partition integer, 
+          in_place_id bigint, 
+          in_country_code VARCHAR(2), 
+          in_keywords INTEGER[], 
+	  in_rank_search INTEGER, 
+          in_rank_address INTEGER, 
+          in_estimate BOOLEAN, 
+	  in_centroid GEOMETRY, 
+          in_geometry GEOMETRY) RETURNS BOOLEAN AS $$
+	DECLARE
+	BEGIN
+	
+	    INSERT INTO location_area_roadfar values (in_partition, in_place_id, in_country_code, in_keywords, in_rank_search, in_rank_address, in_estimate, in_centroid, in_geometry);
+	    RETURN TRUE;
+
+	END
+	$$
+	LANGUAGE plpgsql;
