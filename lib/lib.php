@@ -681,13 +681,17 @@
                 {
                     foreach($aWords as $aToken)
                     {
-                        if (array_key_exists('word_id', $aToken))
-                        {
-                            $aWordsIDs[$aToken['word_id']] = $sToken.'('.$aToken['word_id'].')';
-                        }
-                        else
-                        {
-                            print("Check Token:" . var_export($aToken) . "\n");
+                        if (is_array($aToken)) {
+                            if (array_key_exists('word_id', $aToken))
+                                {
+                                    $aWordsIDs[$aToken['word_id']] = $sToken.'('.$aToken['word_id'].')';
+                                }
+                            else
+                                {
+                                    print("Check Token:" . var_export($aToken) . "\n");
+                                }
+                        } else {
+                             print("Check String Token: $aToken \n");
                         }
                     }
                 }

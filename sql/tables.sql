@@ -294,3 +294,6 @@ CREATE TABLE wikipedia_redirect (
 );
 ALTER TABLE ONLY wikipedia_redirect ADD CONSTRAINT wikipedia_redirect_pkey PRIMARY KEY (language, from_title);
 
+
+--- now load some data
+select getorcreate_tagpair('place', 'suite');

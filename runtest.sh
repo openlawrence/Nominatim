@@ -5,4 +5,4 @@
 ./utils/setup.php --verbose --osm-file data/255_michigan.osm --all
 
 php ./website/search_cli.php -f xml -q "255  Michigan Street STE 6-30"
-pg_dump nominatim > dbdump.sql
+#pg_dump nominatim > dbdump.sql
