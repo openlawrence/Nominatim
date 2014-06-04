@@ -175,6 +175,12 @@
 
 	function getWordSets($aWords, $iDepth)
 	{
+        if (CONST_Debug) {
+            print "DEBUG [101] getWordSets:\n";
+            var_export($aWords);
+            print "\n";
+        }
+
 		$aResult = array(array(join(' ',$aWords)));
 		$sFirstToken = '';
 		if ($iDepth < 8) {
@@ -195,6 +201,13 @@
 
 	function getTokensFromSets($aSets)
 	{
+        
+        if (CONST_Debug) {
+            print "DEBUG [100] getTokensFromSets:\n";
+            var_export($aSets);
+            print "\n";
+        }
+
 		$aTokens = array();
 		foreach($aSets as $aSet)
 		{
@@ -493,6 +506,7 @@
  'place:house' => array('label'=>'House','frequency'=>2086,'icon'=>'','defzoom'=>18,),
  'place:house_name' => array('label'=>'House','frequency'=>2086,'icon'=>'','defzoom'=>18,),
  'place:house_number' => array('label'=>'House Number','frequency'=>2086,'icon'=>'','defzoom'=>18,),
+ 'place:suite' => array('label'=>'Suite','frequency'=>2086,'icon'=>'','defzoom'=>18,),
  'place:country_code' => array('label'=>'Country Code','frequency'=>2086,'icon'=>'','defzoom'=>18,),
 
  //

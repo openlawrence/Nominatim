@@ -5,7 +5,7 @@
 #	require_once(CONST_BasePath.'/lib/log.php');
 	require_once(CONST_BasePath.'/lib/Geocode.php');
 
-	ini_set('memory_limit', '200M');
+ini_set('memory_limit', '200M');
 
 	$oDB =& getDB();
 
@@ -36,12 +36,14 @@ if (array_key_exists ( 'f' , $options ) )
     {
         $format  = $options['f'];
     }
-
+$query = "";
+if (array_key_exists ( 'q' , $options ) ) {
     $query = $options['q'];
 	if (isset($format) && ($format == 'html' || $format == 'xml' || $format == 'json' ||  $format == 'jsonv2'))
 	{
 		$sOutputFormat = $format;
 	}
+}
 
 	// Show / use polygons
 	if ($sOutputFormat == 'html')
@@ -142,7 +144,7 @@ if (array_key_exists ( 'f' , $options ) )
 print "Results\n";
 #print_r($sQuery);
 #print_r($sQuery);
-#print_r($aSearchResults);
+print_r($aSearchResults);
 #	if (CONST_Debug) exit;
 
 #	include(CONST_BasePath.'/lib/template/search-'.$sOutputFormat.'.php');

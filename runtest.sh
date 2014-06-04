@@ -6,3 +6,4 @@
 
 php ./website/search_cli.php -f xml -q "255  Michigan Street STE 6-30" >> log/setup.log 2>&1
 
+pg_dump nominatim > log/dump.txt

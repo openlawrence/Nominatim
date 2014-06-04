@@ -367,7 +367,7 @@
 		{
 
 			if (CONST_Debug) { 
-                print "DEBUG:getDetails("; 
+                print "DEBUG [001]:getDetails("; 
                 var_dump($aPlaceIDs);
                 print ");\n"; 
             }
@@ -439,7 +439,7 @@
 
 			$sSQL .= " order by importance desc";
 			if (CONST_Debug) { 
-                print "DEBUG23\n";
+                print "DEBUG [0023]\n";
                 echo "SQL"; var_dump($sSQL); }
 			$aSearchResults = $this->oDB->getAll($sSQL);
 
@@ -484,7 +484,7 @@
 		function lookup()
 		{
 			if (CONST_Debug) { 
-                print "DEBUG:lookup()\n"; 
+                #print "DEBUG [002]:lookup()\n"; 
             }
 
 			if (!$this->sQuery && !$this->aStructuredQuery) return false;
@@ -649,7 +649,7 @@
 					$sSQL = 'select * from (select word_id,word_token, word, class, type, country_code, operator';
 					$sSQL .= ' from word where word_token in (\' '.$sToken.'\')) as x where (class is not null and class not in (\'place\')) or country_code is not null';
 					if (CONST_Debug){
-                        print "DEBUG Special Terms\n";
+                        print "DEBUG [003]Special Terms\n";
                         var_export($sSQL);
                     }
 					$aSearchWords = $this->oDB->getAll($sSQL);
@@ -702,7 +702,7 @@
 					{
 						userError("Illegal query string (not an UTF-8 string): ".$sPhrase);
 						if (CONST_Debug) {
-                            print "DEBUG25\n";
+                            print "DEBUG [004]25\n";
                             var_dump($aPhrase);
                         }
 						exit;
@@ -713,6 +713,12 @@
 						$aPhrases[$iPhrase]['words'] = explode(' ',$aPhrases[$iPhrase]['string']);
 						$aPhrases[$iPhrase]['wordsets'] = getWordSets($aPhrases[$iPhrase]['words'], 0);
 						$aTokens = array_merge($aTokens, getTokensFromSets($aPhrases[$iPhrase]['wordsets']));
+
+					if (CONST_Debug) {
+                        print "DEBUG [020]aTokens:\n";
+                        var_export($aTokens);
+                        print "\n";
+                    }
 					}
 					else
 					{
@@ -731,7 +737,7 @@
 					$sSQL .= ' from word where word_token in ('.join(',',array_map("getDBQuoted",$aTokens)).')';
 
 					if (CONST_Debug) {
-                        print "DEBUG Step One:\n";
+                        print "DEBUG [005]Step One:\n";
                         var_export($sSQL);
                         print "\n";
                     }
@@ -768,17 +774,17 @@
 						$aWordFrequencyScores[$aToken['word_id']] = $aToken['search_name_count'] + 1;
 					}
 					if (CONST_Debug) {
-                        print "DEBUG phrases\n";
+                        print "DEBUG [006] phrases\n";
                         print var_export($aPhrases);
 
-                        print "DEBUG valid tokens, contains data from the words tables\n";
+                        print "DEBUG [007] valid tokens, contains data from the words tables\n";
                         var_export($aValidTokens);
                     }
 
 					// Try and calculate GB postcodes we might be missing
 					foreach($aTokens as $sToken)
 					{
-						print "DEBUG TOKEN" + strtoupper(trim($sToken)) + "\n";
+						print "DEBUG [008] TOKEN" + strtoupper(trim($sToken)) + "\n";
 
 						// Source of gb postcodes is now definitive - always use
 						if (preg_match('/^([A-Z][A-Z]?[0-9][0-9A-Z]? ?[0-9])([A-Z][A-Z])$/', strtoupper(trim($sToken)), $aData))
@@ -821,7 +827,7 @@
 					foreach($aTokens as $sToken)
 					{
                         if (CONST_Debug) {
-                            print "DEBUG token $sToken\n";
+                            print "DEBUG [009] token $sToken\n";
                         }
 
 						// Unknown single word token with a number - assume it is a house number
@@ -887,17 +893,17 @@
                                                 {
                                                     if (count($value) > 1) 
                                                         {
-                                                            print "DEBUG: current search $key => ". var_dump($value). "\n";
+                                                            print "DEBUG [010]: current search $key => ". var_dump($value). "\n";
                                                         }
                                                     elseif (count($value) > 1) 
                                                         {
-                                                            print "DEBUG: current search $key => ". $value[0]. "\n";
+                                                            print "DEBUG [011]: current search $key => ". $value[0]. "\n";
                                                         }
                                                 } 
                                             else 
                                                 {
                                                     if ($value != "" ) {
-                                                        print "DEBUG: current search $key => $value\n";
+                                                        print "DEBUG [012]: current search $key => $value\n";
                                                     }
                                                 }
                                         }
@@ -913,7 +919,7 @@
 											$aSearch['iSearchRank']++;
 
                                             if (CONST_Debug) {
-                                                print "DEBUG search tokens 123: $sPhraseType\n";
+                                                print "DEBUG [013] search tokens 123: $sPhraseType\n";
                                                 var_dump($aSearchTerm);
                                             }
 
@@ -1114,7 +1120,7 @@
 							} // for each token
 
                             if (CONST_Debug) {
-                                print "DEBUG: aWordsetSearches\n";
+                                print "DEBUG [014]: aWordsetSearches\n";
                                 var_export($aWordsetSearches);
                             }
 
@@ -1154,7 +1160,7 @@
 						}
 
 						if (CONST_Debug) {
-                            print "DEBUG: debugDumpGroupedSearches\n";
+                            print "DEBUG [015]: debugDumpGroupedSearches\n";
                             _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
                         }
 
@@ -1170,7 +1176,7 @@
 						if ($aSearch['iSearchRank'] < $this->iMaxRank)
 						{
                             if (CONST_Debug) {
-                                print "DEBUG JUNK\n";
+                                print "DEBUG [016] JUNK\n";
                                 var_export($aSearch);
                             }
 
@@ -1182,7 +1188,7 @@
 				}
 
 				if (CONST_Debug) {
-                    print "DEBUG aGroupedSearches:\n";
+                    print "DEBUG [017] aGroupedSearches:\n";
                     var_export($aGroupedSearches);
                 }
 
@@ -1265,11 +1271,11 @@
 				}
 
 				if (CONST_Debug) {
-                    print "DEBUG: debugDumpGroupedSearches\n";
+                    print "DEBUG [018]: debugDumpGroupedSearches\n";
                     _debugDumpGroupedSearches($aGroupedSearches, $aValidTokens);
-                    print "DEBUG: aGroupedSearches\n";
+                    print "DEBUG [019]: aGroupedSearches\n";
                     var_export($aGroupedSearches);
-                    print "DEBUG: aValidTokens\n";
+                    print "DEBUG [020]: aValidTokens\n";
                     var_export($aValidTokens);
                 }
 
@@ -1283,10 +1289,10 @@
 						$iQueryLoop++;
 
 						if (CONST_Debug) {
-                            print "DEBUG: Search Loop, group $iGroupLoop, loop $iQueryLoop\n"; 
+                            print "DEBUG [021]: Search Loop, group $iGroupLoop, loop $iQueryLoop\n"; 
                         }
 						if (CONST_Debug) {
-                            print "DEBUG debugDumpGroupedSearches\n";
+                            print "DEBUG [022] debugDumpGroupedSearches\n";
                             _debugDumpGroupedSearches(array($iGroupedRank => array($aSearch)), $aValidTokens);
                         }
 
@@ -1303,7 +1309,7 @@
 									$sSQL .= " order by st_area(geometry) desc limit 1";
 									if (CONST_Debug) {
 
-                                        print "DEBUG7\n";
+                                        print "DEBUG [023]\n";
                                         var_dump($sSQL);
                                     }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1332,7 +1338,7 @@
 									$sSQL .= " limit $this->iLimit";
 
 									if (CONST_Debug) {
-                                        print "DEBUG8\n";
+                                        print "DEBUG [024]8\n";
                                         var_dump($sSQL);
                                     }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1352,7 +1358,7 @@
 
                                         
                                         if (CONST_Debug) {
-                                            print "DEBUG9\n";
+                                            print "DEBUG [025]9\n";
                                             var_dump($sSQL);
                                         }
 
@@ -1368,7 +1374,7 @@
 									$sSQL .= " limit $this->iLimit";
 
                                     if (CONST_Debug) {
-                                        print "DEBUG10\n";
+                                        print "DEBUG [026]10\n";
                                         var_dump($sSQL);
                                     }
 
@@ -1404,7 +1410,7 @@
 								}
 							}
 							if ($aSearch['sCountryCode']) $aTerms[] = "country_code = '".pg_escape_string($aSearch['sCountryCode'])."'";
-							if ($aSearch['sHouseNumber']) $aTerms[] = "address_rank between 16 and 27";
+							if ($aSearch['sHouseNumber']) $aTerms[] = "address_rank between 16 and 30";
 							if ($aSearch['fLon'] && $aSearch['fLat'])
 							{
 								$aTerms[] = "ST_DWithin(centroid, ST_SetSRID(ST_Point(".$aSearch['fLon'].",".$aSearch['fLat']."),4326), ".$aSearch['fRadius'].")";
@@ -1458,7 +1464,7 @@
 
 
                                 if (CONST_Debug) {
-                                        print "DEBUG11 SQL\n";
+                                        print "DEBUG [027]11 SQL\n";
                                         var_dump($sSQL);
                                     }
 
@@ -1500,7 +1506,7 @@
 								}
 								$sSQL .= " limit $this->iLimit";
 								if (CONST_Debug) {
-                                    print "DEBUG12\n";
+                                    print "DEBUG [028]12\n";
                                     var_dump($sSQL);
                                 }
 								$aPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1515,7 +1521,7 @@
 									}
 									//$sSQL .= " limit $this->iLimit";
 									if (CONST_Debug) { 
-                                        print "DEBUG13\n";
+                                        print "DEBUG [029]13\n";
                                         var_dump($sSQL);
                                     }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1530,7 +1536,7 @@
 									}
 									//$sSQL .= " limit $this->iLimit";
 									if (CONST_Debug) { 
-                                        print "DEBUG14\n";
+                                        print "DEBUG [030]14\n";
                                         var_dump($sSQL);
                                     }
 									$aPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1557,7 +1563,7 @@
 									if ($sCountryCodesSQL) $sSQL .= " and calculated_country_code in ($sCountryCodesSQL)";
 									$sSQL .= " order by rank_search asc limit $this->iLimit";
 									if (CONST_Debug) {
-                                        print "DEBUG14\n";
+                                        print "DEBUG [031]14\n";
                                         var_dump($sSQL);
                                     }
 									$aClassPlaceIDs = $this->oDB->getCol($sSQL);
@@ -1685,7 +1691,7 @@
 						}
 
 						if (CONST_Debug) {
-                            print "DEBUG Place IDs: ".  var_export($aPlaceIDs, true); 
+                            print "DEBUG [032]Place IDs: ".  var_export($aPlaceIDs, true); 
                         }
 
 						foreach($aPlaceIDs as $iPlaceID)

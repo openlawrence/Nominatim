@@ -49640,6 +49640,9 @@ select count(make_keywords(v)) from (select distinct suitenumber as v from place
 select count(make_keywords(v)) from (select distinct postcode as v from place) as w where v is not null;
 select count(getorcreate_housenumber_id(v)) from (select distinct housenumber as v from place where housenumber is not null) as w;
 
+select make_keywords('suite');
+select make_keywords('ste');
+
 -- copy the word frequencies
 update word set search_name_count = count from word_frequencies wf where wf.word_token = word.word_token;
 

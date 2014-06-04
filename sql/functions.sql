@@ -85,6 +85,7 @@ LANGUAGE 'plpgsql' IMMUTABLE;
 -- returns NULL if the word is too common
 -- creates a word id for a word
 -- called from make_keywords 
+--  that is called from update_location_nameonly, placex_update
 CREATE OR REPLACE FUNCTION getorcreate_word_id(lookup_word TEXT) 
   RETURNS INTEGER
   AS $$
@@ -1613,26 +1614,63 @@ BEGIN
                    return NEW;
                 ELSE
                 RAISE WARNING '[0047.3] % %', NEW.name, NEW.suitenumber;
-                NEW.name := hstore('name:en', NEW.suitenumber);
+                NEW.name := hstore('name', NEW.suitenumber);
                 RAISE WARNING '[0047.4] % %', NEW.name, NEW.suitenumber;
                 RAISE WARNING '[0047.5] Setting %', NEW;
+                -- make_keywords(NEW.name);   
+                --                update_location_nameonly(NEW.place_id, NEW.name);
+
+
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(NEW.name));
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(hstore('name', 'suite')));
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(hstore('name', 'ste')));
+
+                name_vector := array_merge(name_vector, make_keywords(NEW.name));
+                name_vector := array_merge(name_vector, make_keywords(hstore('name', 'suite')));
+                name_vector := array_merge(name_vector, make_keywords(hstore('name', 'ste')));
+
+                RAISE WARNING '[0047.6] name vector:% ', name_vector;
+                RAISE WARNING '[0047.6] nameaddr vector:% ', nameaddress_vector;
+
                 END IF;
+else
+                IF NEW.suitenumber is not NULL THEN
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(NEW.name));
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(hstore('name', 'suite')));
+                nameaddress_vector := array_merge(nameaddress_vector, make_keywords(hstore('name', 'ste')));
+
+                name_vector := array_merge(name_vector, make_keywords(NEW.name));
+                name_vector := array_merge(name_vector, make_keywords(hstore('name', 'suite')));
+                name_vector := array_merge(name_vector, make_keywords(hstore('name', 'ste')));
+                RAISE WARNING '[0047.6] name vector:% ', name_vector;
+                RAISE WARNING '[0047.6] nameaddr vector:% ', nameaddress_vector;
+
+end if ;
         END IF;
 
-        RAISE WARNING '[0047.4] name % suite %', NEW.name, NEW.suitenumber;
+        RAISE WARNING '[0047.7] name % suite %', NEW.name, NEW.suitenumber;
 
         -- Merge address from parent
         nameaddress_vector := array_merge(nameaddress_vector, location.nameaddress_vector);
         nameaddress_vector := array_merge(nameaddress_vector, location.name_vector);
+
+        RAISE WARNING '[0047.8] new keywords:% ', nameaddress_vector;
+
 --return NEW;
         -- Performance, it would be more acurate to do all the rest of the import process but it takes too long
         -- Just be happy with inheriting from parent road only
+        RAISE WARNING '[0047.5] nameaddress_vector %', nameaddress_vector;
+        RAISE WARNING '[0047.5] name_vector %', name_vector;
 
         IF NEW.rank_search <= 30 THEN
           result := add_location(NEW.place_id, NEW.calculated_country_code, NEW.partition, name_vector, NEW.rank_search, NEW.rank_address, NEW.geometry);
+               RAISE WARNING '[0047.5] result %', result;
         END IF;
 
+
         result := insertSearchName(NEW.partition, NEW.place_id, NEW.calculated_country_code, name_vector, nameaddress_vector, NEW.rank_search, NEW.rank_address, NEW.importance, place_centroid, NEW.geometry);
+
+        RAISE WARNING '[0047.6] result %', result;
 
         return NEW;
       END IF;
@@ -3198,3 +3236,5 @@ $$
 LANGUAGE plpgsql;
 
 
+--- 
+-- select getorcreate_tagpair('place', 'suite');

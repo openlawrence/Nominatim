@@ -852,7 +852,7 @@
 	str_replace(buffer, &len, &changes, " ph ", 4, " p ", 3, 0);
 	str_replace(buffer, &len, &changes, "rue ", 4, " r ", 3, 0);
 	str_replace(buffer, &len, &changes, " ga ", 4, " g ", 3, 0);
-	str_replace(buffer, &len, &changes, "ste ", 4, " ste ", 5, 1);
+	str_replace(buffer, &len, &changes, "ste ", 4, " suite ", 9, 1);
 	str_replace(buffer, &len, &changes, "str ", 4, " st ", 4, 0);
 	str_replace(buffer, &len, &changes, " cl ", 4, " c ", 3, 0);
 	str_replace(buffer, &len, &changes, " vn ", 4, " v ", 3, 0);
