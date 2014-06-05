@@ -40,11 +40,13 @@
         protected $sAllowedTypesSQLList = false;
 
         protected $sQuery = false;
-        protected $aStructuredQuery = false;
+//        protected $aStructuredQuery = false;
+        protected $pear = Null; 
 
         function Geocode(&$oDB)
         {
             $this->oDB =& $oDB;
+            $this->pear = new PEAR(); 
         }
 
         function setReverseInPlan($bReverse)
@@ -196,7 +198,7 @@
         function setQuery($sQueryString)
         {
             $this->sQuery = $sQueryString;
-            $this->aStructuredQuery = false;
+//            $this->aStructuredQuery = false;
         }
 
         function getQueryString()
@@ -287,7 +289,7 @@
             $sQuery = (isset($aParams['q'])?trim($aParams['q']):'');
             if (!$sQuery)
 			{
-				$this->setStructuredQuery(@$aParams['amenity'], @$aParams['street'], @$aParams['city'], @$aParams['county'], @$aParams['state'], @$aParams['country'], @$aParams['postalcode']);
+//				$this->setStructuredQuery(@$aParams['amenity'], @$aParams['street'], @$aParams['city'], @$aParams['county'], @$aParams['state'], @$aParams['country'], @$aParams['postalcode']);
 				$this->setReverseInPlan(false);
 			}
             else
@@ -296,72 +298,72 @@
 			}
         }
 
-        function loadStructuredAddressElement($sValue, $sKey, $iNewMinAddressRank, $iNewMaxAddressRank, $aItemListValues)
-        {
-            $sValue = trim($sValue);
-            if (!$sValue) return false;
-            $this->aStructuredQuery[$sKey] = $sValue;
-            if ($this->iMinAddressRank == 0 && $this->iMaxAddressRank == 30)
-			{
-				$this->iMinAddressRank = $iNewMinAddressRank;
-				$this->iMaxAddressRank = $iNewMaxAddressRank;
-			}
-            if ($aItemListValues) $this->aAddressRankList = array_merge($this->aAddressRankList, $aItemListValues);
-            return true;
-        }
+        /* function loadStructuredAddressElement($sValue, $sKey, $iNewMinAddressRank, $iNewMaxAddressRank, $aItemListValues) */
+        /* { */
+        /*     $sValue = trim($sValue); */
+        /*     if (!$sValue) return false; */
+        /*     $this->aStructuredQuery[$sKey] = $sValue; */
+        /*     if ($this->iMinAddressRank == 0 && $this->iMaxAddressRank == 30) */
+		/* 	{ */
+		/* 		$this->iMinAddressRank = $iNewMinAddressRank; */
+		/* 		$this->iMaxAddressRank = $iNewMaxAddressRank; */
+		/* 	} */
+        /*     if ($aItemListValues) $this->aAddressRankList = array_merge($this->aAddressRankList, $aItemListValues); */
+        /*     return true; */
+        /* } */
 
-        function setStructuredQuery($sAmentiy = false, $sStreet = false, $sCity = false, $sCounty = false, $sState = false, $sCountry = false, $sPostalCode = false)
-        {
-            $this->sQuery = false;
+        /* function setStructuredQuery($sAmentiy = false, $sStreet = false, $sCity = false, $sCounty = false, $sState = false, $sCountry = false, $sPostalCode = false) */
+        /* { */
+        /*     $this->sQuery = false; */
 
-            // Reset
-            $this->iMinAddressRank = 0;
-            $this->iMaxAddressRank = 30;
-            $this->aAddressRankList = array();
+        /*     // Reset */
+        /*     $this->iMinAddressRank = 0; */
+        /*     $this->iMaxAddressRank = 30; */
+        /*     $this->aAddressRankList = array(); */
 
-            $this->aStructuredQuery = array();
-            $this->sAllowedTypesSQLList = '';
+        /*     $this->aStructuredQuery = array(); */
+        /*     $this->sAllowedTypesSQLList = ''; */
 
-            $this->loadStructuredAddressElement($sAmentiy, 'amenity', 26, 30, false);
-            $this->loadStructuredAddressElement($sStreet, 'street', 26, 30, false);
-            $this->loadStructuredAddressElement($sCity, 'city', 14, 24, false);
-            $this->loadStructuredAddressElement($sCounty, 'county', 9, 13, false);
-            $this->loadStructuredAddressElement($sState, 'state', 8, 8, false);
-            $this->loadStructuredAddressElement($sPostalCode, 'postalcode' , 5, 11, array(5, 11));
-            $this->loadStructuredAddressElement($sCountry, 'country', 4, 4, false);
+        /*     $this->loadStructuredAddressElement($sAmentiy, 'amenity', 26, 30, false); */
+        /*     $this->loadStructuredAddressElement($sStreet, 'street', 26, 30, false); */
+        /*     $this->loadStructuredAddressElement($sCity, 'city', 14, 24, false); */
+        /*     $this->loadStructuredAddressElement($sCounty, 'county', 9, 13, false); */
+        /*     $this->loadStructuredAddressElement($sState, 'state', 8, 8, false); */
+        /*     $this->loadStructuredAddressElement($sPostalCode, 'postalcode' , 5, 11, array(5, 11)); */
+        /*     $this->loadStructuredAddressElement($sCountry, 'country', 4, 4, false); */
 
-            if (sizeof($this->aStructuredQuery) > 0) 
-			{
-				$this->sQuery = join(', ', $this->aStructuredQuery);
-				if ($this->iMaxAddressRank < 30)
-                {
-                    $sAllowedTypesSQLList = '(\'place\',\'boundary\')';
-                }
-			}
-        }
+        /*     if (sizeof($this->aStructuredQuery) > 0)  */
+		/* 	{ */
+		/* 		$this->sQuery = join(', ', $this->aStructuredQuery); */
+		/* 		if ($this->iMaxAddressRank < 30) */
+        /*         { */
+        /*             $sAllowedTypesSQLList = '(\'place\',\'boundary\')'; */
+        /*         } */
+		/* 	} */
+        /* } */
 
-        function fallbackStructuredQuery()
-        {
-            if (!$this->aStructuredQuery) return false;
+        /* function fallbackStructuredQuery() */
+        /* { */
+        /*     if (!$this->aStructuredQuery) return false; */
 
-            $aParams = $this->aStructuredQuery;
+        /*     $aParams = $this->aStructuredQuery; */
 
-            if (sizeof($aParams) == 1) return false;
+        /*     if (sizeof($aParams) == 1) return false; */
 
-            $aOrderToFallback = array('postalcode', 'street', 'city', 'county', 'state');
+        /*     $aOrderToFallback = array('postalcode', 'street', 'city', 'county', 'state'); */
 
-            foreach($aOrderToFallback as $sType)
-			{
-				if (isset($aParams[$sType]))
-                {
-                    unset($aParams[$sType]);
-                    $this->setStructuredQuery(@$aParams['amenity'], @$aParams['street'], @$aParams['city'], @$aParams['county'], @$aParams['state'], @$aParams['country'], @$aParams['postalcode']);
-                    return true;
-                }
-			}
+        /*     foreach($aOrderToFallback as $sType) */
+		/* 	{ */
+		/* 		if (isset($aParams[$sType])) */
+        /*         { */
+        /*             unset($aParams[$sType]); */
+        /*             $this->setStructuredQuery(@$aParams['amenity'], @$aParams['street'], @$aParams['city'], @$aParams['county'], @$aParams['state'], @$aParams['country'], @$aParams['postalcode']); */
+        /*             return true; */
+        /*         } */
+		/* 	} */
 
-            return false;
-        }
+        /*     return false; */
+        /* } */
 
         function getDetails($aPlaceIDs)
         {
@@ -443,7 +445,7 @@
                 echo "SQL"; var_dump($sSQL); }
             $aSearchResults = $this->oDB->getAll($sSQL);
 
-            if (PEAR::IsError($aSearchResults))
+            if ($this->pear->IsError($aSearchResults))
 			{
 				failInternalError("Could not get details for place.", $sSQL, $aSearchResults);
 			}
@@ -451,7 +453,10 @@
             return $aSearchResults;
         }
 
-        function checktokens($aPhrases, $aValidTokens) {
+        function create_search_tokens($sToken, &$aPhrases, &$aValidTokens, &$aNewWordsetSearches,  $sPhraseType, &$aCurrentSearch, &$iPhrase) {
+
+            if (CONST_Debug) { print "DEBUG [CST 001] TOKEN:'$sToken' PhraseType:'$sPhraseType'\n"; }
+
             foreach($aValidTokens[' '.$sToken] as $aSearchTerm)
             {
                 $aSearch = $aCurrentSearch;
@@ -519,7 +524,7 @@
 
                         if (sizeof($aSearch['aName']))
                         {
-                            if ((!$bStructuredPhrases || $iPhrase > 0) && $sPhraseType != 'country' && (!isset($aValidTokens[$sToken]) || strlen($sToken) < 4 || strpos($sToken, ' ') !== false))
+                            if (($iPhrase > 0) && $sPhraseType != 'country' && (!isset($aValidTokens[$sToken]) || strlen($sToken) < 4 || strpos($sToken, ' ') !== false))
                             {
                                 $aSearch['aAddress'][$aSearchTerm['word_id']] = $aSearchTerm['word_id'];
                             }
@@ -598,7 +603,7 @@
 
                     if (sizeof($aSearch['aName']))
                     {
-                        if ((!$bStructuredPhrases || $iPhrase > 0) && $sPhraseType != 'country' && (!isset($aValidTokens[$sToken]) || strlen($sToken) < 4 || strpos($sToken, ' ') !== false))
+                        if (($iPhrase > 0) && $sPhraseType != 'country' && (!isset($aValidTokens[$sToken]) || strlen($sToken) < 4 || strpos($sToken, ' ') !== false))
                         {
                             $aSearch['aAddress'][$aSearchTerm['word_id']] = $aSearchTerm['word_id'];
                         }
@@ -619,58 +624,84 @@
             } // for each valid tokens
         }
 
-        function check_wordset($aWordset,$aWordsetSearches, &$aNewWordsetSearches) {
+        function add_all_words_from_wordset(&$aWordset,&$aWordsetSearches, &$aNewWordsetSearches, &$aValidTokens, &$sPhraseType, &$iPhrase, &$aWordFrequencyScores) {
+
+
+            if (CONST_Debug) {
+
+#                print "DEBUG [AAWFW 001.0] WordSet\n";
+#                var_dump($aWordset);
+
+                #print "DEBUG [AAWFW 001.1] WordSetSearches\n";
+                #var_dump($aWordsetSearches);
+
+                #print "DEBUG [AAWFW 001.2] aNewWordSetSearches\n";
+                #var_dump($aNewWordsetSearches);
+            }
+
+            // Add all words from this wordset
             foreach($aWordset as $iToken => $sToken)
             {
                 if (CONST_Debug) {
-                    print "DEBUG [009.3] token $sToken\n";
+                    print "DEBUG [009.31] Token '$sToken'\n";
                 }
-
-                $aNewWordsetSearches = array();
 
                 foreach($aWordsetSearches as $aCurrentSearch)
                 {
-                    //echo "<i>";
-                    if (CONST_Debug) {
-                        //print "DEBUG current search\n";
-                        //#var_dump($aCurrentSearch);
-                        foreach ($aCurrentSearch as $key => $value) {
-                            if (is_array ( $value ) )
-                            {
-                                if (count($value) > 1) 
-                                {
-                                    print "DEBUG [010]: current search $key => ". var_dump($value). "\n";
-                                }
-                                elseif (count($value) > 1) 
-                                {
-                                    print "DEBUG [011]: current search $key => ". $value[0]. "\n";
-                                }
-                            } 
-                            else 
-                            {
-                                if ($value != "" ) {
-                                    print "DEBUG [012]: current search $key => $value\n";
-                                }
-                            }
-                        }
-                    }
-                    //echo "</i>";
+                    /* //echo "<i>"; */
+                    //if (CONST_Debug) { 
+                    /*     #print "DEBUG[009.4] current search\n"; */
+
+                    
+
+                    /*     foreach ($aCurrentSearch as $key => $value) { */
+                    /*         if (is_array ( $value ) ) */
+                    /*         { */
+                    /*             if (count($value) > 1)  */
+                    /*             { */
+                    /*                 print "DEBUG [010]: current search $key => ". var_dump($value). "\n"; */
+                    /*             } */
+                    /*             elseif (count($value) > 1)  */
+                    /*             { */
+                    /*                 print "DEBUG [011]: current search $key => ". $value[0]. "\n"; */
+                    /*             } */
+                    /*         }  */
+                    /*         else  */
+                    /*         { */
+                    /*             if ($value != "" ) { */
+                    /*                 #print "DEBUG [012]: current search $key => $value\n"; */
+                    /*             } */
+                    /*         } */
+                    /*     } */
+                    /* } */
+                    /* //echo "</i>"; */
 
                     // If the token is valid
                     if (isset($aValidTokens[' '.$sToken]))
                     {
-                        checktokens($aPhrases, $aValidTokens) ;
+                        if (CONST_Debug) {print "DEBUG [AAWFW 009.32] create search token '$sToken'\n";}
+                        $this->create_search_tokens($sToken, $aPhrases, $aValidTokens, $aNewWordsetSearches, $sPhraseType, $aCurrentSearch, $iPhrase);
                                         
                     } // if iset
-
+                    
                     if (isset($aValidTokens[$sToken]))
                     {
+                        if (CONST_Debug) {print "DEBUG [AAWFW 009.321]: $sToken\n"; };
+
                         // Allow searching for a word - but at extra cost
                         foreach($aValidTokens[$sToken] as $aSearchTerm)
                         {
+                            if (CONST_Debug) {print "DEBUG [AAWFW 003]:\n" ;
+                                var_dump($aSearchTerm);
+                            };
+
                             if (isset($aSearchTerm['word_id']) && $aSearchTerm['word_id'])
                             {
-                                if ((!$bStructuredPhrases || $iPhrase > 0) && sizeof($aCurrentSearch['aName']) && strlen($sToken) >= 4)
+
+                                $wordid = $aSearchTerm['word_id'];
+                                if (CONST_Debug) {print "DEBUG [AAWFW 004]:wordid\n" ;}
+
+                                if (($iPhrase > 0) && sizeof($aCurrentSearch['aName']) && strlen($sToken) >= 4)
                                 {
                                     $aSearch = $aCurrentSearch;
                                     $aSearch['iSearchRank'] += 1;
@@ -718,11 +749,13 @@
                     }
                     else
                     {
-                        // Allow skipping a word - but at EXTREAM cost
+                        if (CONST_Debug) {print "DEBUG [009.33] NO DATA: '$sToken'\n"; };
+                        // Allow skipping a word - but at EXTREME cost
                         //$aSearch = $aCurrentSearch;
                         //$aSearch['iSearchRank']+=100;
                         //$aNewWordsetSearches[] = $aSearch;
                     }
+
                 }
                 // Sort and cut
                 usort($aNewWordsetSearches, 'bySearchRank');
@@ -736,7 +769,7 @@
 
         }
 
-        function main_search($aSearches, $aPhrases, $bStructuredPhrases, $aValidTokens, $aGroupedSearches) {
+        function main_search(&$aSearches, &$aPhrases, &$aValidTokens, &$aGroupedSearches, &$aValidTokens) {
 
             // Start the search process
             $aResultPlaceIDs = array();
@@ -754,16 +787,36 @@
             */
             foreach($aPhrases as $iPhrase => $sPhrase)
             {
+                
+                if (CONST_Debug) {
+                    /**
+                       contains the combinations of the words
+                     */
+                    #print "DEBUG [009.000]\n";
+                    #var_dump($iPhrase);
+                    #var_dump($sPhrase);                    
+                }
                 $aNewPhraseSearches = array();
-                if ($bStructuredPhrases) $sPhraseType = $aPhraseTypes[$iPhrase];
-                else $sPhraseType = '';
+                #if ($bStructuredPhrases) $sPhraseType = $aPhraseTypes[$iPhrase];
+                #else 
+                $sPhraseType = '';
 
                 foreach($aPhrases[$iPhrase]['wordsets'] as $iWordSet => $aWordset)
                 {
+                    if (CONST_Debug) {
+                        /*
+                          called once for each set of words
+                         */
+                        print "DEBUG [009.00]\n";
+                        #var_dump($iWordSet);
+                        #var_dump($aWordset);
+                                                
+                    }
+
                     // Too many permutations - too expensive
                     if ($iWordSet > 120){
                         if (CONST_Debug) {
-                            print "DEBUG [009.3]Too many permutations - too expensive\n";
+                            print "DEBUG [009.34]Too many permutations - too expensive\n";
                         }
                         break;
                     }
@@ -771,8 +824,9 @@
                     $aWordsetSearches = $aSearches;
 
                     // Add all words from this wordset
-                    $aNewWordsetSearches = Null;
-                    $this->check_wordset($aWordset, $aWordsetSearches, $aNewWordsetSearches);
+                    $aNewWordsetSearches = array();
+
+                    $this->add_all_words_from_wordset($aWordset, $aWordsetSearches, $aNewWordsetSearches, $aValidTokens, $sPhraseType, $iPhrase, $aWordFrequencyScores);
 
                     $aNewPhraseSearches = array_merge($aNewPhraseSearches, $aNewWordsetSearches);
                     usort($aNewPhraseSearches, 'bySearchRank');
@@ -817,19 +871,19 @@
             }
         }
 
-        function prepare_phrases(&$aPhrases, &$sQuery, &$aTokens, &$bStructuredPhrases) {
+        function prepare_phrases(&$aPhrases, &$sQuery, &$aTokens) {
             // Split query into phrases
             // Commas are used to reduce the search space by indicating where phrases split
-            if ($this->aStructuredQuery)
-            {
-                $aPhrases = $this->aStructuredQuery;
-                $bStructuredPhrases = true;
-            }
-            else
-            {
+            /* if ($this->aStructuredQuery) */
+            /* { */
+            /*     $aPhrases = $this->aStructuredQuery; */
+            /*     $bStructuredPhrases = true; */
+            /* } */
+            /* else */
+            /* { */
                 $aPhrases = explode(',',$sQuery);
-                $bStructuredPhrases = false;
-            }
+//                $bStructuredPhrases = false;
+                //}
 
             // Convert each phrase to standard form
             // Create a list of standard words
@@ -839,7 +893,7 @@
             foreach($aPhrases as $iPhrase => $sPhrase)
             {
                 $aPhrase = $this->oDB->getRow("select make_standard_name('".pg_escape_string($sPhrase)."') as string");
-                if (PEAR::isError($aPhrase))
+                if ($this->pear->isError($aPhrase))
                 {
                     userError("Illegal query string (not an UTF-8 string): ".$sPhrase);
                     if (CONST_Debug) {
@@ -856,9 +910,9 @@
                     $aTokens = array_merge($aTokens, getTokensFromSets($aPhrases[$iPhrase]['wordsets']));
 
                     if (CONST_Debug) {
-                        print "DEBUG [020]aTokens:\n";
-                        var_export($aTokens);
-                        print "\n";
+#                        print "DEBUG [020]aTokens:\n";
+#                        var_export($aTokens);
+#                        print "\n";
                     }
                 }
                 else
@@ -947,7 +1001,9 @@
                 #print "DEBUG [002]:lookup()\n"; 
             }
 
-                if (!$this->sQuery && !$this->aStructuredQuery) return false;
+                if (!$this->sQuery 
+                    //&& !$this->aStructuredQuery
+                   ) return false;
 
                 $sLanguagePrefArraySQL = "ARRAY[".join(',',array_map("getDBQuoted",$this->aLangPrefOrder))."]";
 
@@ -999,7 +1055,7 @@
 
                     $sSQL = "select st_buffer(".$sViewboxCentreSQL.",".(float)($_GET['routewidth']/69).")";
                     $this->sViewboxSmallSQL = $this->oDB->getOne($sSQL);
-                    if (PEAR::isError($this->sViewboxSmallSQL))
+                    if ($this->pear->isError($this->sViewboxSmallSQL))
                     {
                         failInternalError("Could not get small viewbox.", $sSQL, $this->sViewboxSmallSQL);
                     }
@@ -1007,7 +1063,7 @@
 
                     $sSQL = "select st_buffer(".$sViewboxCentreSQL.",".(float)($_GET['routewidth']/30).")";
                     $this->sViewboxLargeSQL = $this->oDB->getOne($sSQL);
-                    if (PEAR::isError($this->sViewboxLargeSQL))
+                    if ($this->pear->isError($this->sViewboxLargeSQL))
                     {
                         failInternalError("Could not get large viewbox.", $sSQL, $this->sViewboxLargeSQL);
                     }
@@ -1018,7 +1074,9 @@
                 $this->prepare_squery($sQuery);
 
                 $aSearchResults = array();
-                if ($sQuery || $this->aStructuredQuery)
+                if ($sQuery 
+                    //|| $this->aStructuredQuery
+                   )
                 {
                     // Start with a blank search
                     $aSearches = array(
@@ -1064,11 +1122,11 @@
 
                     preg_match_all('/\\[([\\w ]*)\\]/u', $sQuery, $aSpecialTermsRaw, PREG_SET_ORDER);
                     $aSpecialTerms = array();
-                    if (isset($aStructuredQuery['amenity']) && $aStructuredQuery['amenity'])
-                    {
-                        $aSpecialTermsRaw[] = array('['.$aStructuredQuery['amenity'].']', $aStructuredQuery['amenity']);
-                        unset($aStructuredQuery['amenity']);
-                    }
+                    /* if (isset($aStructuredQuery['amenity']) && $aStructuredQuery['amenity']) */
+                    /* { */
+                    /*     $aSpecialTermsRaw[] = array('['.$aStructuredQuery['amenity'].']', $aStructuredQuery['amenity']); */
+                    /*     unset($aStructuredQuery['amenity']); */
+                    /* } */
                     foreach($aSpecialTermsRaw as $aSpecialTerm)
                     {
 
@@ -1106,8 +1164,8 @@
                     }
 
                     $aTokens = array();
-                    $bStructuredPhrases = False;
-                    $this->prepare_phrases($aPhrases, $sQuery, $aTokens, $bStructuredPhrases);
+//                    $bStructuredPhrases = False;
+                    $this->prepare_phrases($aPhrases, $sQuery, $aTokens);
 
                     $aGroupedSearches = array();
 
@@ -1117,29 +1175,30 @@
                         $sSQL = 'select word_id,word_token, word, class, type, country_code, operator, search_name_count';
                         $sSQL .= ' from word where word_token in ('.join(',',array_map("getDBQuoted",$aTokens)).')';
 
-                        if (CONST_Debug) {
-                            print "DEBUG [005]Step One:\n";
-                            var_export($sSQL);
-                            print "\n";
-                        }
+                        if (CONST_Debug) {print "DEBUG [005]Step One: prepare valid tokens\n"; }
 
                         $aValidTokens = array();
                         if (sizeof($aTokens)) $aDatabaseWords = $this->oDB->getAll($sSQL);
                         else $aDatabaseWords = array();
-                        if (PEAR::IsError($aDatabaseWords))
+
+                        if (CONST_Debug) {print "DEBUG [005.1]Database words\n"; var_export($aDatabaseWords); }
+
+                        if ($this->pear->IsError($aDatabaseWords))
                         {
                             failInternalError("Could not get word tokens.", $sSQL, $aDatabaseWords);
                         }
+
                         $aPossibleMainWordIDs = array();
                         $aWordFrequencyScores = array();
+
                         foreach($aDatabaseWords as $aToken)
                         {
                             // Very special case - require 2 letter country param to match the country code found
-                            if ($bStructuredPhrases && $aToken['country_code'] && !empty($aStructuredQuery['country'])
-								&& strlen($aStructuredQuery['country']) == 2 && strtolower($aStructuredQuery['country']) != $aToken['country_code'])
-                            {
-                                continue;
-                            }
+                            /* if ($bStructuredPhrases && $aToken['country_code'] && !empty($aStructuredQuery['country']) */
+							/* 	&& strlen($aStructuredQuery['country']) == 2 && strtolower($aStructuredQuery['country']) != $aToken['country_code']) */
+                            /* { */
+                            /*     continue; */
+                            /* } */
 
                             if (isset($aValidTokens[$aToken['word_token']]))
                             {
@@ -1155,6 +1214,7 @@
                             $aWordFrequencyScores[$aToken['word_id']] = $aToken['search_name_count'] + 1;
                         }
 
+                        if (CONST_Debug) {print "DEBUG [005.1]Valid Tokens\n"; var_export($aValidTokens); }
 
                         // Try and calculate GB postcodes we might be missing
                         foreach($aTokens as $sToken)
@@ -1201,41 +1261,46 @@
 
                         foreach($aTokens as $sToken)
                         {
-                            if (CONST_Debug) {
-                                print "DEBUG [009] token:$sToken\n";
-                            }
+                            /* if (CONST_Debug) { */
+                            /*     print "DEBUG [009] token:$sToken\n"; */
+                            /*     if (isset($aValidTokens[' '.$sToken])) { */
+                            /*         print "[009.00]Tokens:"; */
+                            /*         var_dump($aValidTokens[' '.$sToken]); */
+                            /*     } */
+
+                            /* } */
 
                             // Unknown single word token with a number - assume it is a house number
-                            if (!isset($aValidTokens[' '.$sToken]) && strpos($sToken,' ') === false && preg_match('/[0-9]/', $sToken))
-                            {
-                                if (CONST_Debug) {
-                                    print "DEBUG [009.01] house number:$sToken\n";
-                                }
-                                $aValidTokens[' '.$sToken] = array(array('class'=>'place','type'=>'house'));
-                            }
-                            elseif (!isset($aValidTokens[' '.$sToken]) && preg_match('/(ste|suite) ([0-9 \-]+)/', $sToken, $matches))
-                            {
-                                if (CONST_Debug) {
-                                    print "DEBUG [009.1] SUITE:$sToken\n";
-                                    print_r($matches);
-                                }
-                                $aValidTokens[' '.$sToken] = array(array(
-                                                                           'class'=>'place',
-                                                                           'type'=>'suite', 
-                                                                           'operator' => 'name',
-                                                                   ));
-                                if (CONST_Debug) {
-                                    print "DEBUG [009.2] SUITE %\n";
-                                    var_dump($aValidTokens[' '.$sToken]);
-                                }
-                            }
+                            /* if (!isset($aValidTokens[' '.$sToken]) && strpos($sToken,' ') === false && preg_match('/[0-9]/', $sToken)) */
+                            /* { */
+                            /*     if (CONST_Debug) { */
+                            /*         print "DEBUG [009.01] house number:$sToken\n"; */
+                            /*     } */
+                            /*     $aValidTokens[' '.$sToken] = array(array('class'=>'place','type'=>'house')); */
+                            /* } */
+                            /* elseif (!isset($aValidTokens[' '.$sToken]) && preg_match('/(ste|suite) ([0-9 \-]+)/', $sToken, $matches)) */
+                            /* { */
+                            /*     /\* if (CONST_Debug) { *\/ */
+                            /*     /\*     print "DEBUG [009.1] SUITE:$sToken\n"; *\/ */
+                            /*     /\*     print_r($matches); *\/ */
+                            /*     /\* } *\/ */
+                            /*     /\* $aValidTokens[' '.$sToken] = array(array( *\/ */
+                            /*     /\*                                            'class'=>'place', *\/ */
+                            /*     /\*                                            'type'=>'suite',  *\/ */
+                            /*     /\*                                            'operator' => 'name', *\/ */
+                            /*     /\*                                    )); *\/ */
+                            /*     /\* if (CONST_Debug) { *\/ */
+                            /*     /\*     print "DEBUG [009.2] SUITE %\n"; *\/ */
+                            /*     /\*     var_dump($aValidTokens[' '.$sToken]); *\/ */
+                            /*     /\* } *\/ */
+                            /* } */
 
                         }
 
                         // Any words that have failed completely?
                         // TODO: suggestions
 
-                        $this->main_search($aSearches, $aPhrases, $bStructuredPhrases, $aValidTokens, $aGroupedSearches);
+                        $this->main_search($aSearches, $aPhrases, $aValidTokens, $aGroupedSearches, $aValidTokens);
 
                     }
                     else
@@ -1285,41 +1350,41 @@
                         }
                     }
 
-                    if (CONST_Search_TryDroppedAddressTerms && sizeof($aStructuredQuery) > 0)
-                    {
-                        $aCopyGroupedSearches = $aGroupedSearches;
-                        foreach($aCopyGroupedSearches as $iGroup => $aSearches)
-                        {
-                            foreach($aSearches as $iSearch => $aSearch)
-                            {
-                                $aReductionsList = array($aSearch['aAddress']);
-                                $iSearchRank = $aSearch['iSearchRank'];
-                                while(sizeof($aReductionsList) > 0)
-                                {
-                                    $iSearchRank += 5;
-                                    if ($iSearchRank > iMaxRank) break 3;
-                                    $aNewReductionsList = array();
-                                    foreach($aReductionsList as $aReductionsWordList)
-                                    {
-                                        for ($iReductionWord = 0; $iReductionWord < sizeof($aReductionsWordList); $iReductionWord++)
-                                        {
-                                            $aReductionsWordListResult = array_merge(array_slice($aReductionsWordList, 0, $iReductionWord), array_slice($aReductionsWordList, $iReductionWord+1));
-                                            $aReverseSearch = $aSearch;
-                                            $aSearch['aAddress'] = $aReductionsWordListResult;
-                                            $aSearch['iSearchRank'] = $iSearchRank;
-                                            $aGroupedSearches[$iSearchRank][] = $aReverseSearch;
-                                            if (sizeof($aReductionsWordListResult) > 0)
-                                            {
-                                                $aNewReductionsList[] = $aReductionsWordListResult;
-                                            }
-                                        }
-                                    }
-                                    $aReductionsList = $aNewReductionsList;
-                                }
-                            }
-                        }
-                        ksort($aGroupedSearches);
-                    }
+                    /* if (CONST_Search_TryDroppedAddressTerms && sizeof($aStructuredQuery) > 0) */
+                    /* { */
+                    /*     $aCopyGroupedSearches = $aGroupedSearches; */
+                    /*     foreach($aCopyGroupedSearches as $iGroup => $aSearches) */
+                    /*     { */
+                    /*         foreach($aSearches as $iSearch => $aSearch) */
+                    /*         { */
+                    /*             $aReductionsList = array($aSearch['aAddress']); */
+                    /*             $iSearchRank = $aSearch['iSearchRank']; */
+                    /*             while(sizeof($aReductionsList) > 0) */
+                    /*             { */
+                    /*                 $iSearchRank += 5; */
+                    /*                 if ($iSearchRank > iMaxRank) break 3; */
+                    /*                 $aNewReductionsList = array(); */
+                    /*                 foreach($aReductionsList as $aReductionsWordList) */
+                    /*                 { */
+                    /*                     for ($iReductionWord = 0; $iReductionWord < sizeof($aReductionsWordList); $iReductionWord++) */
+                    /*                     { */
+                    /*                         $aReductionsWordListResult = array_merge(array_slice($aReductionsWordList, 0, $iReductionWord), array_slice($aReductionsWordList, $iReductionWord+1)); */
+                    /*                         $aReverseSearch = $aSearch; */
+                    /*                         $aSearch['aAddress'] = $aReductionsWordListResult; */
+                    /*                         $aSearch['iSearchRank'] = $iSearchRank; */
+                    /*                         $aGroupedSearches[$iSearchRank][] = $aReverseSearch; */
+                    /*                         if (sizeof($aReductionsWordListResult) > 0) */
+                    /*                         { */
+                    /*                             $aNewReductionsList[] = $aReductionsWordListResult; */
+                    /*                         } */
+                    /*                     } */
+                    /*                 } */
+                    /*                 $aReductionsList = $aNewReductionsList; */
+                    /*             } */
+                    /*         } */
+                    /*     } */
+                    /*     ksort($aGroupedSearches); */
+                    /* } */
 
                     // Filter out duplicate searches
                     $aSearchHash = array();
@@ -1539,7 +1604,7 @@
                                     }
 
                                     $aViewBoxPlaceIDs = $this->oDB->getAll($sSQL);
-                                    if (PEAR::IsError($aViewBoxPlaceIDs))
+                                    if ($this->pear->IsError($aViewBoxPlaceIDs))
                                     {
                                         failInternalError("Could not get places for search terms.", $sSQL, $aViewBoxPlaceIDs);
                                     }
@@ -1755,7 +1820,7 @@
 
                             }
 
-                            if (PEAR::IsError($aPlaceIDs))
+                            if ($this->pear->IsError($aPlaceIDs))
                             {
                                 failInternalError("Could not get place IDs from tokens." ,$sSQL, $aPlaceIDs);
                             }
@@ -1815,13 +1880,13 @@
                 // No results? Done
                 if (!sizeof($aSearchResults))
                 {
-                    if ($this->bFallback)
-                    {
-                        if ($this->fallbackStructuredQuery())
-                        {
-                            return $this->lookup();
-                        }
-                    }
+                    /* if ($this->bFallback) */
+                    /* { */
+                    /*     if ($this->fallbackStructuredQuery()) */
+                    /*     { */
+                    /*         return $this->lookup(); */
+                    /*     } */
+                    /* } */
 
                     return array();
                 }
@@ -1848,7 +1913,7 @@
                         if ($this->bIncludePolygonAsText || $this->bIncludePolygonAsPoints) $sSQL .= ",ST_AsText(geometry) as astext";
                         $sSQL .= " from placex where place_id = ".$aResult['place_id'].' and st_geometrytype(Box2D(geometry)) = \'ST_Polygon\'';
                         $aPointPolygon = $this->oDB->getRow($sSQL);
-                        if (PEAR::IsError($aPointPolygon))
+                        if ($this->pear->IsError($aPointPolygon))
                         {
                             failInternalError("Could not get outline.", $sSQL, $aPointPolygon);
                         }

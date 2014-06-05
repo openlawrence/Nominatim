@@ -176,9 +176,9 @@
 	function getWordSets($aWords, $iDepth)
 	{
         if (CONST_Debug) {
-            print "DEBUG [101] getWordSets:\n";
-            var_export($aWords);
-            print "\n";
+            #print "DEBUG [101] getWordSets:\n";
+            #var_export($aWords);
+            #print "\n";
         }
 
 		$aResult = array(array(join(' ',$aWords)));
@@ -203,9 +203,9 @@
 	{
         
         if (CONST_Debug) {
-            print "DEBUG [100] getTokensFromSets:\n";
-            var_export($aSets);
-            print "\n";
+#            print "DEBUG [100] getTokensFromSets:\n";
+#            var_export($aSets);
+#            print "\n";
         }
 
 		$aTokens = array();

@@ -3,9 +3,11 @@
 
 	function &getDB($bNew = false, $bPersistent = false)
 	{
+        $pear = new PEAR(); 
+        $db = new DB();
 		// Get the database object
-		$oDB =& DB::connect(CONST_Database_DSN.($bNew?'?new_link=true':''), $bPersistent);
-		if (PEAR::IsError($oDB))
+		$oDB =& $db->connect(CONST_Database_DSN.($bNew?'?new_link=true':''), $bPersistent);
+		if ($pear->IsError($oDB))
 		{
 			var_dump(CONST_Database_DSN);
 			var_Dump($oDB);
