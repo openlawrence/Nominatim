@@ -4,12 +4,12 @@
 
 	// General settings
 	@define('CONST_Debug', true);
-	@define('CONST_Database_DSN', 'pgsql:///nominatim'); // <driver>://<username>:<password>@<host>:<port>/<database>
+	@define('CONST_Database_DSN', 'pgsql:///indianhills'); // <driver>://<username>:<password>@<host>:<port>/<database>
 	@define('CONST_Max_Word_Frequency', '50000');
 	@define('CONST_Limit_Reindexing', true);
 
 	// Software versions
-	@define('CONST_Postgresql_Version', '9.3'); // values: 8.3, 8.4, 9.0, 9.1, 9.2
+	@define('CONST_Postgresql_Version', '9.4'); // values: 8.3, 8.4, 9.0, 9.1, 9.2
 	@define('CONST_Postgis_Version', '2.1'); // values: 1.5, 2.0
 
 	// Paths
